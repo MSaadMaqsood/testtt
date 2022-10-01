@@ -46,15 +46,17 @@ def getpdf(pdf_name):
 @app.route('/get_dashboard')
 def get_dashboard():
     data_map = violation_map_data()
-    return jsonify({"street_health": 95, "green_index": 95, "risk": 95, "data_map": data_map})
+    return jsonify({"street_health": 95, "green_index": 95, "risk": 5, "data_map": data_map})
 
 
 def violation_map_data():
+    now = datetime.today()
+    today_date = now.strftime("%Y-%m-%d")
     data = []
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-                "SELECT `violation_id`, `street_id`, `lat`, `long` FROM `violation` WHERE `violation_date` = '2022-09-29' OR `violation_date` = '2022-09-30' ORDER By `street_id`,`violation_id` ASC;")
+                "SELECT `violation_id`, `street_id`, `lat`, `long` FROM `violation` WHERE `violation_date` = '"+today_date+"' ORDER By `street_id`,`violation_id` ASC;")
     cursor.execute(query)
     prev_id = 1
     temp = []
