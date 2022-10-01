@@ -138,43 +138,42 @@ def get_street_health(street_id, violation_count):
     b = list(c.values())
     print(a, b)
     for i in range(len(a)):
-        match int(a[i]):
-            case 1:
-                Asphalt = Asphalt - b[i] * 3
-                if Asphalt < 0:
-                    Asphalt = 0
-                continue
-            case 2:
-                Sidewalk = 100 - b[i] * 2
-                print(Sidewalk, b[i])
-                if Sidewalk < 0:
-                    Sidewalk = 0
-                continue
-            case 3:
-                Lighting = 100 - b[i] * 2
-                if Lighting < 0:
-                    Lighting = 0
-                continue
-            case 4:
-                Cleanliness = 100 - b[i] * 2
-                if Cleanliness < 0:
-                    Cleanliness = 0
-                continue
-            case 5:
-                Afforestation = 100 - b[i] * 2
-                if Afforestation < 0:
-                    Afforestation = 0
-                continue
-            case 6:
-                Fossils = 100 - b[i] * 2
-                if Fossils < 0:
-                    Fossils = 0
-                continue
-            case 7:
-                Asphalt = Asphalt - b[i] * 6
-                if Asphalt < 0:
-                    Asphalt = 0
-                continue
+        if int(a[i]) == 1:
+            Asphalt = Asphalt - b[i] * 3
+            if Asphalt < 0:
+                Asphalt = 0
+            continue
+        elif int(a[i]) == 2:
+            Sidewalk = 100 - b[i] * 2
+            print(Sidewalk, b[i])
+            if Sidewalk < 0:
+                Sidewalk = 0
+            continue
+        elif int(a[i]) == 3:
+            Lighting = 100 - b[i] * 2
+            if Lighting < 0:
+                Lighting = 0
+            continue
+        elif int(a[i]) == 4:
+            Cleanliness = 100 - b[i] * 2
+            if Cleanliness < 0:
+                Cleanliness = 0
+            continue
+        elif int(a[i]) == 5:
+            Afforestation = 100 - b[i] * 2
+            if Afforestation < 0:
+                Afforestation = 0
+            continue
+        elif int(a[i]) == 6:
+            Fossils = 100 - b[i] * 2
+            if Fossils < 0:
+                Fossils = 0
+            continue
+        elif int(a[i]) == 7:
+            Asphalt = Asphalt - b[i] * 6
+            if Asphalt < 0:
+                Asphalt = 0
+            continue
     green_index = int((Asphalt+Sidewalk+Lighting+Cleanliness+Afforestation+Fossils)/6)
     return {
                 "street_risk_rate": 100-green_index,
