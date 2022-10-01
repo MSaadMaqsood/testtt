@@ -1,43 +1,36 @@
 
-import {Map, InfoWindow, Marker, GoogleApiWrapper, Polyline} from 'google-maps-react';
+import {Map, InfoWindow, Marker, GoogleApiWrapper, Polyline, Circle} from 'google-maps-react';
 import { useEffect } from 'react';
 import React, { Component } from "react";
-
+import {
+    GoogleMap,
+    DirectionsService,
+    DirectionsRenderer, LoadScript 
+  } from '@react-google-maps/api'
 
 export class MapContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        data: [],
-        render: false,
-        
+            response: null,
      };
-
-   
-    this.GetData = this.GetData.bind(this);
-    
-     
+     this.directionsCallback = this.directionsCallback.bind(this)
 }
-componentDidMount() {
-    setTimeout(function() { 
-        this.setState({render: true}) 
-    }.bind(this), 500)
-}
+directionsCallback (response) {
+    console.log(response)
 
-GetData() {
-    const com = this;
-    const axios = require('axios').default;
-    axios.get('http://67.205.163.34:1159/get_all_violations_loc_list')
-    .then(function (response) {
-      // handle success
-      
-      com.setState({
-            data: response.data.myData
-          });
-    })
-    
+    if (response !== null) {
+      if (response.status === 'OK') {
+        this.setState(
+          () => ({
+            response
+          })
+        )
+      } else {
+        console.log('response: ', response)
+      }
+    }
   }
-
     render() {
         const violationpoits=[ 
         
@@ -56,30 +49,83 @@ GetData() {
            
         ]
     
-        return (
-            <Map
-                google={this.props.google}
-                containerStyle={{}}
-                style={{width: "90%", height: "100%"}}
-                center={{lat: 24.92231296013835, lng: 67.11994378679105}}
-                initialCenter={{lat: 24.92231296013835, lng: 67.11994378679105}}
-                zoom={16}
-                disableDefaultUI={true}
+         return (
+             <Map
+                 google={this.props.google}
+                 containerStyle={{}}
+                 style={{width: "92%", height: "100%"}}
+                 center={{lat: 21.5102399, lng: 39.1995493}}
+                 initialCenter={{lat: 21.5102399, lng: 39.1995493}}
+                 zoom={12}
+                 disableDefaultUI={true}
             >
-                {violationpoits.map((latlng) => (
-                    <Polyline
+                 {this.props.data.line.map((latlng) => (
+                     <Polyline
                         path={latlng}
-                        strokeColor="red"
-                        strokeOpacity={1}
-                        strokeWeight={6}
-                        onClick={() =>{  window.location.href ="/violation/"+latlng[0].devid;  }}
-                    />
-                ))}
-            </Map>
-        );
+                         strokeColor="red"
+                         strokeOpacity={1}
+                         strokeWeight={6}
+                         onClick={() =>{  window.location.href ="/violation/"+latlng[0].street_id;  }}
+                     />
+                 ))}
+                 {
+                  this.props.data.circle.map((latlng)=>(
+                    <Circle
+                        radius={7}
+                        center={latlng}
+                        onClick={() =>{  window.location.href ="/violation/"+latlng[0].street_id;  }}
+                        strokeColor='transparent'
+                        strokeOpacity={0}
+                        strokeWeight={5}
+                        fillColor='#FF0000'
+                        fillOpacity={0.8}
+                      />
+                  ))
+                 }
+             </Map>
+         );
+
+        // return(<div style={{width: "90%", height: "100%"}}>
+        //     <LoadScript
+        //     googleMapsApiKey="AIzaSyB9Vn8oxR_0zSETwnggqgVRNz9rRxyQwTw"
+        //     style={{width: "90%", height: "100%"}}
+        //   >
+        // <GoogleMap
+        //                     id='direction-example'
+        //                     mapContainerStyle={{width: "98%", height: "600px" }}
+        //                     zoom={12}
+        //                     center={{lat: 21.5102399, lng: 39.1995493}}
+                            
+        //   >
+        //    <DirectionsService
+        //           // required
+        //           options={{ 
+        //             origin: "21.550661,39.221493",
+        //             destination:  "21.548605,39.221821",
+        //             travelMode: "WALKING"
+        //           }}
+        //           // required
+        //           callback={this.directionsCallback}
+                  
+        //         />
+        //         {
+        //       this.state.response !== null && (
+        //         <DirectionsRenderer
+        //           // required
+        //           options={{ 
+        //             directions: this.state.response
+        //           }}
+                  
+        //         />
+        //       )
+        //     }
+        //   </GoogleMap>
+        //   </LoadScript>
+        //   </div>
+        //   );
     }
   }
    
-  export default GoogleApiWrapper({
-    apiKey: "AIzaSyAhpqm1hIWBkVzKvf7uyqCmYNRxwQwbZzo"
-  })(MapContainer)
+   export default GoogleApiWrapper({
+     apiKey: "AIzaSyAhpqm1hIWBkVzKvf7uyqCmYNRxwQwbZzo"
+   })(MapContainer)

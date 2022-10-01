@@ -13,35 +13,38 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      street_health: 95,
-      green_index: 95,
-      risk: 5,
-      render: false,
+      street_health: 0,
+      green_index: 0,
+      risk: 0,
+      data_map: {'line':[],'circle':[]},
+      render: true,
     };
 
     this.GetData = this.GetData.bind(this);
-    
+    //this.componentDidMount = this.componentDidMount.bind(this);
+    this.GetData();
     
   }
-  componentDidMount() {
-    setTimeout(
-      function () {
-        this.setState({ render: true });
-      }.bind(this),
-      500
-    );
-  }
+  // componentDidMount() {
+  //   setTimeout(
+  //     function () {
+  //       this.setState({ render: true });
+  //     }.bind(this),
+  //     500
+  //   );
+  // }
 
   GetData() {
     const com = this;
     const axios = require("axios").default;
-    axios.get("http://67.205.163.34:1159/get_dashboard").then(function (response) {
+    axios.get("http://67.205.163.34:2626/get_dashboard").then(function (response) {
       // handle success
 
       com.setState({
         street_health: response.data.street_health,
         green_index: response.data.green_index,
         risk: response.data.risk,
+        data_map: response.data.data_map
       });
     });
   }
@@ -128,7 +131,7 @@ class Dashboard extends Component {
             </div>
             <label>Last update 12h ago</label>
             <div>
-              <MapContainer />
+              <MapContainer data={this.state.data_map} />
             </div>
           </div>
         </div>

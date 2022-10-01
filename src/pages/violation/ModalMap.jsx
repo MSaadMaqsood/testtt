@@ -4,6 +4,7 @@ import {
   Marker,
   GoogleApiWrapper,
   Polyline,
+  Circle
 } from "google-maps-react";
 import { useEffect } from "react";
 import React, { Component } from "react";
@@ -35,23 +36,22 @@ export class ModalMap extends Component {
         google={this.props.google}
         containerStyle={{}}
         style={{ width: "45%", height: "300px", marginLeft:"10px" }}
-        center={{ lat: 24.92231296013835, lng: 67.11994378679105 }}
-        initialCenter={{ lat: 24.92231296013835, lng: 67.11994378679105 }}
-        zoom={15}
+        center={this.props.latlng}
+        initialCenter={ this.props.latlng }
+        zoom={16}
         disableDefaultUI={true}
       >
-        {this.state.render &&
-          this.state.data.map((latlng) => (
-            <Polyline
-              path={latlng}
-              strokeColor="red"
-              strokeOpacity={1}
-              strokeWeight={12}
-              onClick={() => {
-                window.location.href = "/violation/" + latlng[0].devid;
-              }}
-            />
-          ))}
+        
+        <Circle
+            radius={15}
+            center={this.props.latlng}
+            strokeColor='transparent'
+            strokeOpacity={0}
+            strokeWeight={5}
+            fillColor='#FF0000'
+            fillOpacity={0.8}
+          />
+          
       </Map>
     );
   }

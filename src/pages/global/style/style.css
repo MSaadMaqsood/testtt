@@ -105,10 +105,14 @@
   margin-left: 80px;
   display: inline;
 }
+.violation_container{
+  width: 100%;
+}
 .violation_content_cards {
   margin-top: -80px !important;
   margin-left: 80px;
   display: flex;
+  
 }
 .violation_content_cards_statuses {
   margin-top: 0px !important;
@@ -116,8 +120,8 @@
   display: flex;
 }
 .violation_content_card_main {
-  width: 85rem !important;
-  height: 70rem !important;
+  width: 99% !important;
+  height: 100% !important;
   margin: auto;
   margin-top: 0px !important;
 }
@@ -165,7 +169,7 @@
 
 
 
-.violation_cases_details_filter button{
+.violation_cases_details_filter .now{
   height: 25px;
   padding-top: 0;
   color: aliceblue;
@@ -177,7 +181,23 @@
 .violation_cases_details_filter .now :hover{ 
   color: aliceblue !important;
   background-color:rgb(71, 134, 250) !important;
-
+}
+.violation_cases_details_filter_export{
+  height: 35px;
+  color: rgb(71, 134, 250); 
+  background-color:#fff;
+  border: solid 1px;
+  border-color: rgb(71, 134, 250);
+  border-radius: 5px;
+  float: right !important;
+  margin-left: auto;
+  margin-right: 30px;
+  margin-top: -5px;
+  order: 2;
+} 
+.violation_cases_details_filter_export:hover{
+  color: aliceblue !important;
+  background-color:rgb(71, 134, 250) !important;
 }
 .violation_column_cell_serial{
  

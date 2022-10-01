@@ -15,79 +15,121 @@ import { Link, useParams } from "react-router-dom";
 class Violation extends Component {
   constructor(props) {
     super(props);
+    
     var url = window.location.href;
     var id = url.substring(url.lastIndexOf("/") + 1);
     this.state = {
-      total_vioaltions: 13,
+      total_vioaltions: 0,
       street_id: id,
+      street_name: "",
+      street_health: {
+        "street_risk_rate": 0,
+        "green_index": 0,
+        "Asphalt": 100,
+        "Sidewalk": 100,
+        "Lighting": 100,
+        "Cleanliness": 100,
+        "Afforestation": 100,
+        "Fossils": 100
+    },
+      list_of_streets: [],
+      violation_table: {"myData": [], "pages": 1},
+      to_show_violation_table:{"myData": [], "pages": 1},
       render: false,
-      list_of_streets: [
-        {"street_id": 1, "street_name": "Street_1"},
-        {"street_id": 2, "street_name": "Street_2"},
-        {"street_id": 3, "street_name": "Street_3"},
-    ],
-      data:[
-          {"street_id": 1, "street_name": "Street_1", "street_risk_rate": 15, "green_index": 85, "Asphalt": 40, "Sidewalk": 60, "Lighting": 71, "Cleanliness": 90, "Afforestation": 95, "Fossils": 92},
-          {"street_id": 2, "street_name": "Street_2", "street_risk_rate": 5, "green_index": 95, "Asphalt": 60, "Sidewalk": 75, "Lighting": 99, "Cleanliness": 92, "Afforestation": 92, "Fossils": 87},
-          {"street_id": 3, "street_name": "Street_3", "street_risk_rate": 8, "green_index": 92, "Asphalt": 85, "Sidewalk": 49, "Lighting": 65, "Cleanliness": 82, "Afforestation": 77, "Fossils": 55}
-        ],
-        selected_street: 0
+      selected_date: "",
+      to_render:false,
+      
       };
 
     this.GetData = this.GetData.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.setter = this.setter.bind(this);
-    this.selected = {}
-    for (var i of this.state.data){
-      if(i.street_id == this.state.street_id){
-        const vv = {"street": {"street_id": i.street_id, "street_name": i.street_name, "street_risk_rate": i.street_risk_rate, "green_index": i.green_index}, 
-        "street_health": {"Asphalt": i.Asphalt, "Sidewalk": i.Sidewalk, "Lighting": i.Lighting, "Cleanliness": i.Cleanliness, "Afforestation": i.Afforestation, "Fossils": i.Fossils}
-      }
-      this.selected = vv;
-      }
-    }
-    console.log(this.selected)
-    this.componentDidMount();
+    this.date_change_now = this.date_change_now.bind(this);
+    this.date_change = this.date_change.bind(this);
+    this.export_pdf = this.export_pdf.bind(this);
+    this.GetData();
   }
-  componentDidMount() {
-    setTimeout(
-      function () {
-        this.setState({ render: true });
-      }.bind(this),
-      500
-    );
-  }
-  setter(){
-   
 
-  }
   GetData() {
     const com = this;
     const axios = require("axios").default;
     axios
       .get(
-        "http://67.205.163.34:1159/get_violation_page/" + this.state.street_id
+        "http://67.205.163.34:2626/get_violation_page/" + this.state.street_id
       )
       .then(function (response) {
-        // handle success
-
         com.setState({
-          data: response.data,
+          street_name: response.data.street_name,
+          street_health: response.data.street_health,
+          violation_table: response.data.violation_table,
+          to_show_violation_table: response.data.violation_table,
           list_of_streets: response.data.list_of_streets,
+          total_vioaltions: response.data.violation_table.myData.length,
+          render: true
         });
       });
   }
+
   change = (e) => {
     window.location.href = "/violation/" + e.target.value;
   };
+  date_change = (e) => {
+    
+    const da = e.target.value.split("-");
+    const got_date= da[0]+','+da[1]+','+da[2];
+    this.setState({
+      selected_date: e.target.value
+    })
+    const com = this;
+    const axios = require("axios").default;
+    axios
+      .get(
+        "http://67.205.163.34:2626/get_violation_table_by_date/" + this.state.street_id+"/"+got_date
+      )
+      .then(function (response) {
+        com.setState({
+          to_show_violation_table: response.data,
+          total_vioaltions: response.data.myData.length,
+        });
+        
+      });
+  };
+  date_change_now () {
+    const temp = this.state.violation_table
+    this.setState({
+      to_show_violation_table: temp,
+      total_vioaltions: temp.myData.length,
+      selected_date:""
+    })
+  };
 
+  export_pdf(){
+    var se_date;
+    if(this.state.selected_date === ""){
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+
+      se_date = yyyy+'-'+mm + '-' + dd;
+    }else{
+      se_date = this.state.selected_date;
+    }
+   const axios = require('axios').default;
+    axios.post("http://67.205.163.34:2626/export_violation_pdf", {'street_name': this.state.street_name, 'street_info': this.state.street_health, 'violation_date':se_date, 'violation_table_data':this.state.to_show_violation_table})
+    .then(function (response) {
+        window.open("http://67.205.163.34:2626/getpdf/"+response.data.pdf_name);
+    })
+
+  }
   render() {
-    
-    
+      
     const get_streets = this.state.list_of_streets.map((O) => {
       return <option value={O.street_id}>{O.street_name}</option>;
     });
-
+    var table_send = () =>{
+      if(this.state.to_render){
+        
+      }
+    }
    
 
     return (
@@ -104,18 +146,18 @@ class Violation extends Component {
                 </Card.Title>
                 <Card.Title className="violation_content_card_body_title_right">
                   Risk Rate:{" "}
-                  {this.selected.street.street_risk_rate}
+                  {this.state.street_health.street_risk_rate}
                   %
                 </Card.Title>
                 <Card.Text className="violation_content_card_body_text">
                   These cases related to{" "}
-                  {this.selected.street.street_name}{" "}
+                  {this.state.street_name}{" "}
                   street
                 </Card.Text>
                 <Box
                   sx={{
                     width: this.state.render
-                      ? (this.selected.street.green_index / 3).toString() +
+                      ? (this.state.street_health.green_index / 3).toString() +
                         "%"
                       : "0",
                     height: 20,
@@ -129,8 +171,9 @@ class Violation extends Component {
                   class="violation_select"
                   aria-label="Default select example"
                   onChange={this.change}
+                  
                 >
-                  <option value={this.selected.street.street_id}>{this.selected.street.street_name}</option>
+                  <option>{this.state.street_name}</option>
                   {get_streets}
                 </select>
 
@@ -148,16 +191,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Asphalt.toString() +
+                          ? this.state.street_health.Asphalt.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Asphalt > 70
+                          this.state.street_health.Asphalt > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Asphalt >= 50
+                              this.state.street_health.Asphalt >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -166,7 +209,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Asphalt}
+                          this.state.street_health.Asphalt}
                         %
                       </p>
                     </Box>
@@ -178,16 +221,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Sidewalk.toString() +
+                          ? this.state.street_health.Sidewalk.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Sidewalk > 70
+                          this.state.street_health.Sidewalk > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Sidewalk >= 50
+                              this.state.street_health.Sidewalk >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -196,7 +239,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Sidewalk}
+                          this.state.street_health.Sidewalk}
                         %
                       </p>
                     </Box>
@@ -208,16 +251,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Lighting.toString() +
+                          ? this.state.street_health.Lighting.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Lighting > 70
+                          this.state.street_health.Lighting > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Lighting >= 50
+                              this.state.street_health.Lighting >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -226,7 +269,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Lighting}
+                          this.state.street_health.Lighting}
                         %
                       </p>
                     </Box>
@@ -238,16 +281,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Cleanliness.toString() +
+                          ? this.state.street_health.Cleanliness.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Cleanliness > 70
+                          this.state.street_health.Cleanliness > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Cleanliness >= 50
+                              this.state.street_health.Cleanliness >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -256,7 +299,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Cleanliness}
+                          this.state.street_health.Cleanliness}
                         %
                       </p>
                     </Box>
@@ -268,16 +311,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Afforestation.toString() +
+                          ? this.state.street_health.Afforestation.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Afforestation > 70
+                          this.state.street_health.Afforestation > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Afforestation >= 50
+                              this.state.street_health.Afforestation >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -286,7 +329,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Afforestation}
+                          this.state.street_health.Afforestation}
                         %
                       </p>
                     </Box>
@@ -298,16 +341,16 @@ class Violation extends Component {
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.selected.street_health.Fossils.toString() +
+                          ? this.state.street_health.Fossils.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.selected.street_health.Fossils > 70
+                          this.state.street_health.Fossils > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.selected.street_health.Fossils >= 50
+                              this.state.street_health.Fossils >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -316,7 +359,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.selected.street_health.Fossils}
+                          this.state.street_health.Fossils}
                         %
                       </p>
                     </Box>
@@ -326,7 +369,7 @@ class Violation extends Component {
                   <Box
                     sx={{
                       width: this.state.render
-                        ? this.selected.street.green_index.toString() + "%"
+                        ? this.state.street_health.green_index.toString() + "%"
                         : "0",
                       height: 25,
                       backgroundColor: "#00c04b",
@@ -336,20 +379,20 @@ class Violation extends Component {
                   >
                     <p className="GreenIndex">
                       Green Index:{" "}
-                      {this.state.render && this.selected.street.green_index}%
+                      {this.state.render && this.state.street_health.green_index}%
                     </p>
                   </Box>
                   <Box
                     sx={{
                       width: this.state.render
                         ? (
-                            100 - this.selected.street.green_index
+                            100 - this.state.street_health.green_index
                           ).toString() + "%"
                         : "0",
                       height: 25,
                       backgroundColor:
                         this.state.render &&
-                        this.selected.street.green_index >= 50
+                        this.state.street_health.green_index >= 50
                           ? "orange"
                           : "red",
                       marginTop: "15px",
@@ -370,14 +413,17 @@ class Violation extends Component {
                     </h6>
                     <div className="violation_cases_details_filter">
                       <h6>Filter by: </h6>
-                      <input className="filter_datee" type="date" id="date" name="date" />
+                      <input className="filter_datee" type="date" id="date" name="date" onChange={this.date_change} value={this.state.selected_date}/>
                       
                       <h4 className="bar">|</h4>
-                      <button type="button" class="now">
+                      <button type="button" class="now" onClick={this.date_change_now}>
                         Now
                       </button>
+                      <button type="button" class="violation_cases_details_filter_export" onClick={this.export_pdf}>
+                        Export as PDF
+                      </button>
                     </div>
-                    <Table className="violation_table" />
+                    <Table className="violation_table" table_data = {this.state.to_show_violation_table} ref={this.child} changed="true"/>
 
                     <Card.Text className="violation_content_card_body_text_subheadings_lasttwo">
                       Action

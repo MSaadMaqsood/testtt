@@ -11,200 +11,60 @@ export default class Table extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      total_violations: 6,
-      show_img: false,
+      show_model: false,
       status: "Not Reported",
-      imgPathToShow: "",
-      countPages: 3,
       currentPage: 1,
       data: [],
       render: false,
-      tabledata: [
-        {
-          "violation_id": 1,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 2,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 3,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 4,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 5,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 6,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 7,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 8,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 9,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 10,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 11,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 12,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-        {
-          "violation_id": 13,
-          "violation_type_id": 1,
-          "accurate": 90,
-          "risk": 10,
-          "display_img": "1.jpg",
-          "violation_date": "June 10, 2022",
-          "violation_time": "13:05",
-          "violation_name": "Asphalt"
-        },
-      ],
+      model_show_violation_info: {
+        "violation_id": 0,
+        "violation_type_id": 0,
+        "accurate": 0,
+        "risk": 0,
+        "display_img": "0",
+        "violation_date": "JAn 00, 0000",
+        "violation_time": "00:00",
+        "violation_name": "",
+        "lat": 0,
+        "lng": 0,
+        "status": "Not Reported"
+    },
     };
-    this.showModal_img = this.showModal_img.bind(this);
-    this.hideModal_img = this.hideModal_img.bind(this);
+    this.showModal = this.showModal.bind(this);
+    this.hideModal = this.hideModal.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.GetData = this.GetData.bind(this);
     
-    this.componentDidMount();
   }
-
-  showModal_img = (para) => (e) => {
-    this.setState({ show_img: true, imgPathToShow: para });
+  showModal = (para) => (e) => {
+    const com = this;
+    const axios = require("axios").default;
+    axios
+      .get("http://67.205.163.34:2626/get_single_violation/"+para)
+      .then(function (response) {
+        com.setState({
+          model_show_violation_info: response.data,
+          show_model: true
+        });
+      });
   };
   changeStatus = () => {
     this.setState({ status: "Reported" });
   };
-  hideModal_img = () => {
-    this.setState({ show_img: false, imgPathToShow: "" });
+  hideModal = () => {
+    this.setState({ show_model: false });
   };
 
   handleChange = (e, value) => {
     this.setState({ currentPage: value });
   };
-
   handleChange_check = (event) => {
     console.log(event.target.value + " " + event.target.checked);
   };
 
-  componentDidMount() {
-    setTimeout(
-      function () {
-        this.setState({ render: true });
-      }.bind(this),
-      2000
-    );
-  }
-
-  GetData() {
-    const com = this;
-    const axios = require("axios").default;
-    axios
-      .get("http://67.205.163.34:1159/get_violations/1")
-      .then(function (response) {
-        // handle success
-
-        com.setState({
-          data: response.data.myData,
-          countPages: response.data.pages,
-        });
-      });
-  }
-
+  
   render() {
     const calll = () => {
-      const hh = this.state.tabledata.slice(
+      const hh = this.props.table_data.myData.slice(
         (this.state.currentPage - 1) * 5,
         (this.state.currentPage - 1) * 5 + 5
       );
@@ -233,9 +93,8 @@ export default class Table extends Component {
             <div class="col">
               <button
                 type="button"
-                onClick={this.showModal_img(
-                  "http://67.205.163.34:1159/showviolationimage/" +
-                    O.display_img
+                onClick={this.showModal(
+                  O.violation_id
                 )}
                 class="violation_btn_show_issue"
               >
@@ -259,23 +118,23 @@ export default class Table extends Component {
         {calll()}
         <hr />
         <Modal
-          isOpen={this.state.show_img}
-          onRequestClose={this.hideModal_img}
+          isOpen={this.state.show_model}
+          onRequestClose={this.hideModal}
           contentLabel="Example Modal"
           className="violation_cases_details_table_model"
         >
           <br />
          
-          <XOctagon onClick={this.hideModal_img} style={{ float: "right", height:"30px", width:"30px" }}  />
+          <XOctagon onClick={this.hideModal} style={{ float: "right", height:"30px", width:"30px" }}  />
           <br />
           <br />
           <div className="Modal_violation">
             <img
-              src={this.state.imgPathToShow}
+              src={'http://67.205.163.34:2626/show_violation_image/'+this.state.model_show_violation_info.display_img}
               style={{ width: "50%", height: "300px" }}
             />
             <div className="map_size">
-              <ModalMap />
+              <ModalMap latlng={ { lat: this.state.model_show_violation_info.lat , lng: this.state.model_show_violation_info.lng } } />
             </div>
           </div>
           <div className="row_of_modal">
@@ -283,25 +142,25 @@ export default class Table extends Component {
               <table>
                 <tr>
                   <td>Date Time:</td>
-                  <td>Sep 24, 2022 at 13:14</td>
+                  <td>{this.state.model_show_violation_info.violation_date} at {this.state.model_show_violation_info.violation_time}</td>
                 </tr>
                 <tr>
                   <td>Violation Type:</td>
-                  <td>Asphalt</td>
+                  <td>{this.state.model_show_violation_info.violation_name}</td>
                 </tr>
                 <tr>
                   <td>Accurate:</td>
-                  <td>90%</td>
+                  <td>{this.state.model_show_violation_info.accurate}%</td>
                 </tr>
                 <tr>
                   <td style={{color:"red"}}>Risk:</td>
-                  <td  style={{color:"red"}}>10%</td>
+                  <td  style={{color:"red"}}>{this.state.model_show_violation_info.risk}%</td>
                 </tr>
               </table>  
             </div>
               <div className="row_col">
             <h6 className="violation_modal_current_status" style={{marginTop:"10px"}}>
-              Current Status: {this.state.status}
+              Current Status: {this.state.model_show_violation_info.status}
             </h6>
             <div className="violation_action_buttons" style={{marginLeft: "15%",marginTop:"10px"}}>
                         <button type="button" class="btnn">
@@ -322,7 +181,7 @@ export default class Table extends Component {
         <div className="pagination_style">
           <Stack spacing={2}>
             <Pagination
-              count={3}
+              count={this.props.table_data.pages}
               onChange={this.handleChange}
             />
           </Stack>
