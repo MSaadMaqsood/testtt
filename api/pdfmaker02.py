@@ -1,5 +1,6 @@
 from fpdf import FPDF
 from datetime import datetime
+from PIL import Image
 
 def pdf_maker(street_name, street_info, violation_date_total, violation_table_data):
 
@@ -28,12 +29,12 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
     pdf.set_text_color(0, 0, 0)
     pdf.cell(w=0, h=20, txt="Generated On: " + str(current_time), align='R',  ln=1)
     pdf.set_font(family='Times', style='B', size=24)
-    pdf.cell(-100)
-    pdf.cell(w=0, h=50, txt=str(street_name), align='C', ln=0)
+
+    pdf.cell(w=0, h=30, txt=str(street_name), align='C', ln=1)
     pdf.set_font(family='Times', style='B', size=18)
     pdf.set_text_color(93,93,93)
-    pdf.cell(-480)
-    pdf.cell(w=0, h=50, txt="  Violations", align='C', ln=1)
+
+    pdf.cell(w=0, h=40, txt="  Violations", align='C', ln=1)
     pdf.set_text_color(0, 0, 0)
     pdf.set_text_color(255, 0, 0)
     pdf.set_font(family='Times', style='B', size=14)
@@ -197,7 +198,7 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
         pdf.set_font(family='Times', size=12)
         pdf.cell(w=200, h=15, txt=str(street_info.get("green_index")) + "%   ", border=0, ln=0, align='L', fill=1)
         pdf.set_fill_color(255, 165, 0)
-        pdf.cell(w=45, h=15, txt="", border=1, ln=1, align='L', fill=1)
+        pdf.cell(w=45, h=15, txt="", border=0, ln=1, align='L', fill=1)
     elif street_info.get("green_index") < 70:
         pdf.set_fill_color(255, 165, 0)
         pdf.cell(-440)
@@ -205,7 +206,7 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
         pdf.set_font(family='Times', size=12)
         pdf.cell(w=260, h=15, txt=str(street_info.get("green_index")) + "%   ", border=0, ln=0, align='L', fill=1)
         pdf.set_fill_color(255, 165, 0)
-        pdf.cell(w=45, h=15, txt="", border=1, ln=1, align='L', fill=1)
+        pdf.cell(w=45, h=15, txt="", border=0, ln=1, align='L', fill=1)
     else:
         pdf.set_fill_color(0, 128, 0)
         pdf.cell(-440)
@@ -245,8 +246,29 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
         pdf.cell(20)
         pdf.set_text_color(255, 0, 0)
         pdf.cell(w=90, h=15, txt="Risk: " + str(risk) + "%", border=1, ln=1, align='C', fill=1)
+        ##to_page_2 = pdf.add_link()
+
+        pdf.ln(10)
+        pdf.set_text_color(0, 0, 255)
+        pdf.cell(180)
+        pdf.image(w=200, h=100, type='jpg',
+                  link="./images/" + violation_table_data[i].get("display_img"),
+                             name="./images/"+violation_table_data[i].get("display_img"))
         pdf.ln(15)
 
-    pdf_name = street_name+"_"+str(violation_date_total)+"_"+datetime.now().strftime("%b-%d-%Y_%H-%M")+".pdf"
-    pdf.output('./pdf/'+pdf_name)
+    ##pdf.add_page()
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='B', size=12)
+    pdf.cell(100)
+    ##Add for loop here for list of images
+    ##for i in range(len(violation_table_data)):
+        ##violation_id: str | int | None = violation_table_data[i].get("violation_id")
+        ##pdf.cell(w=0, h=15, txt='Violation # ' + str(violation_id) + ': ', align='L', ln=0)
+        ##pdf.cell(-350)
+        ##to_page_2 = pdf.add_link()
+       ##pdf.set_link(to_page_2, page=2)
+        ##pdf.image(w=200, h=100, type='png', link="to_page_2",
+          ##    name='https://psprop.net/wp-content/uploads/2012/02/HOA-Trash-Can-Violation.png')
+    pdf_name = street_name+"_"+str(violation_date_total)+"_"+datetime.now().strftime("%b-%d-%Y_%H_%M")+".pdf"
+    pdf.output("./pdf/"+pdf_name)
     return pdf_name

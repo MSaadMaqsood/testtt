@@ -10,12 +10,12 @@ from datetime import datetime
 from flask import send_file
 from datetime import datetime, timedelta
 from google_api import *
-from pdfmaker import *
+from pdfmaker02 import *
 from collections import Counter
+import pytz
 
 app = Flask(__name__)
 CORS(app)
-
 
 def db_connection():
     host = 'localhost'
@@ -39,6 +39,22 @@ def getpdf(pdf_name):
     filepath = "./pdf/"+filename
     return send_file(filepath)
 
+@app.route('/insertviolationdata', methods = ['POST'])
+def inserttelemetryData():
+    request_data=request.get_json()
+
+
+    cnx = db_connection()
+
+    cursor = cnx.cursor()
+    query = ("INSERT INTO `violation`(`street_id`, `violation_type_id`, `details`, `accurate`, `risk`, `display_img`, `lat`, `long`, `start_latlng`, `end_latlng`, `violation_date`, `violation_time`, `violation_status`, `action_taken`, `user_id`) VALUES " + request_data['query'])
+    cursor.execute(query)
+    cnx.commit()
+    cursor.close()
+
+    cnx.close()
+
+    return jsonify(True)
 
 """################################### Dashboard ######################################################"""
 
@@ -50,71 +66,36 @@ def get_dashboard():
 
 
 def violation_map_data():
-    now = datetime.today()
+    now = datetime.today(SAST)
     today_date = now.strftime("%Y-%m-%d")
     data = []
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-                "SELECT `violation_id`, `street_id`, `lat`, `long` FROM `violation` WHERE `violation_date` = '"+today_date+"' ORDER By `street_id`,`violation_id` ASC;")
+                "SELECT `street_id`,`start_latlng`, `end_latlng` FROM `violation` WHERE `violation_date` = '"+today_date+"' AND (`start_latlng` != '0' OR `end_latlng` != '0') ORDER By `street_id`,`violation_id` ASC;")
     cursor.execute(query)
-    prev_id = 1
-    temp = []
-    temp_bool = False
-    for a, b, c, d in cursor:
-        if not b == prev_id:
-            if temp_bool:
-                data.append(temp)
-                temp = []
-            else:
-                temp_bool = True
-        temp.append({
-            "id": a,
-            "street_id": b,
-            "lat": float(c),
-            "long": float(d),
-        })
-        prev_id = b
-    data.append(temp)
-    cursor.close()
-    cnx.close()
-
     used = []
     list_for_circle = []
-    for i in data:
-        ignore = []
-        for j in i:
-            make = False
-            if j['id'] in ignore:
-                continue
-            for k in i:
-                if j['id'] == k['id']:
-                    continue
-                dist = get_distance_btw_violation_by_distance_matrix_api(k['lat'], k['long'], j['lat'], j['long'])
-                if dist < 350 and dist != 0:
-                    ignore.append(k['id'])
-                    used.append([
-                                {
-                                    "street_id": k['street_id'],
-                                    "lat": k['lat'],
-                                    "lng": k['long'],
-                                },{
-                                    "street_id": k['street_id'],
-                                    "lat": j['lat'],
-                                    "lng": j['long'],
-                                },
-                        ]
-                    )
-                    make = True
-            if not make:
-                list_for_circle.append({"street_id": j['street_id'],
-                                    "lat": j['lat'],
-                                    "lng": j['long'],})
-                #re = get_second_latlng_for_single_violation_by_direction_api(j['lat'], j['long'], j['street_id'])
-                #if len(re) > 0:
-                #    used.append(re)
-
-    return {'line':used,'circle':list_for_circle}
+    for a, b, c in cursor:
+        temp_start = b.split(',')
+        if b != '0' and c != '0':
+            temp_end = c.split(',')
+            used.append([
+                {
+                    "street_id": a,
+                    "lat": float(temp_start[0]),
+                    "lng": float(temp_start[1]),
+                }, {
+                    "street_id": a,
+                    "lat": float(temp_end[0]),
+                    "lng": float(temp_end[1]),
+                },
+            ])
+        else:
+            list_for_circle.append({"street_id": a,
+                    "lat": float(temp_start[0]),
+                    "lng": float(temp_start[1]), })
+    return {'line': used, 'circle': list_for_circle}
 
 
 """################################### Violation Page ######################################################"""
@@ -134,11 +115,13 @@ def get_violation_page(street_id):
 
 def get_street_health(street_id, violation_count):
     Asphalt = Sidewalk = Lighting = Cleanliness = Afforestation = Fossils = 100
+    Rubble_source = Street_Sweeping = Median = Communication_tower = 100
     violation_count.sort()
     c = Counter(violation_count)
     a = list(c.keys())
     b = list(c.values())
     print(a, b)
+    print(a)
     for i in range(len(a)):
         if int(a[i]) == 1:
             Asphalt = Asphalt - b[i] * 3
@@ -176,7 +159,28 @@ def get_street_health(street_id, violation_count):
             if Asphalt < 0:
                 Asphalt = 0
             continue
-    green_index = int((Asphalt+Sidewalk+Lighting+Cleanliness+Afforestation+Fossils)/6)
+        elif int(a[i]) == 8:
+            Rubble_source = Rubble_source - b[i] * 2
+            if Rubble_source < 0:
+                Rubble_source = 0
+            continue
+        elif int(a[i]) == 9:
+            Street_Sweeping = Street_Sweeping - b[i] * 2
+            if Street_Sweeping < 0:
+                Street_Sweeping = 0
+            continue
+        elif int(a[i]) == 10:
+            Median = Median - b[i] * 2
+            if Median < 0:
+                Median = 0
+            continue
+        elif int(a[i]) == 11:
+            Communication_tower = Communication_tower - b[i] * 2
+            if Communication_tower < 0:
+                Communication_tower = 0
+            continue
+
+    green_index = int((Asphalt+Sidewalk+Lighting+Cleanliness+Afforestation+Fossils+Rubble_source+Street_Sweeping+Median+Communication_tower)/10)
     return {
                 "street_risk_rate": 100-green_index,
                 "green_index": green_index,
@@ -185,7 +189,11 @@ def get_street_health(street_id, violation_count):
                 "Lighting": Lighting,
                 "Cleanliness": Cleanliness,
                 "Afforestation": Afforestation,
-                "Fossils": Fossils
+                "Fossils": Fossils,
+                "Rubble_source": Rubble_source,
+                "Street_Sweeping": Street_Sweeping,
+                "Median": Median,
+                "Communication_tower": Communication_tower,
             }
 
 
@@ -334,4 +342,4 @@ def export_dashboard_csv():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=1151)
+    app.run(debug=True, host="0.0.0.0", port=4587)

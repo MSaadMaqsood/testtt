@@ -2,6 +2,7 @@ import requests
 import math
 api_text = "AIzaSyAhpqm1hIWBkVzKvf7uyqCmYNRxwQwbZzo"
 
+
 def to_rad(v):
     return v * math.pi / 180
 
