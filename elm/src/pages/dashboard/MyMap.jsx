@@ -24,28 +24,27 @@ export default class MapContainer extends Component {
 }
 directionsCallback  = para => response => {
   setTimeout(() => {  console.log("World!"); }, 2500);
+  setTimeout(() => {  console.log("World!"); }, 2500);
+  setTimeout(() => {  console.log("World!"); }, 2500);
   for (let i = 0; i < 100000000; i++) {
     let sdsdf= i;
     let dsfsd= i;
   }
-  setTimeout(() => {  console.log("World!"); }, 2500);
     if (response !== null) {
 
       if (response.status === 'OK') {
         const coords = response.routes[0].overview_path;
         this.state.response.push({'res':coords,'str_id':para});
-
-        console.log('response: ', response)
         this.setState({setter:true});
       } else {
         console.log('response: ', response)
       }
     }
+    setTimeout(() => {  console.log("World!"); }, 2500);
     for (let i = 0; i < 100000000; i++) {
       let sdsdf= i;
       let dsfsd= i;
     }
-    setTimeout(() => {  console.log("World!"); }, 2500);
   }
   add_street (id) {
     
@@ -56,10 +55,7 @@ directionsCallback  = para => response => {
     
   }
     render() {
-      console.log(this.props.data)
-
-     
-      
+      const center0 = {lat: 24.665618, lng: 46.698126};     
         //  return (
         //      <Map
         //          google={this.props.google}
@@ -104,8 +100,9 @@ directionsCallback  = para => response => {
          <GoogleMap
                             id='direction-example'
                             mapContainerStyle={{width: "98%", height: "600px" }}
-                            zoom={11}
-                            center={{lat: 24.7478969, lng: 46.7861813}}
+                            zoom={12}
+                            
+                            center={center0}
                             
            >
             {this.props.data.line.map((latlng) =>(

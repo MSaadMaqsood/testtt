@@ -8,15 +8,17 @@ import Violation from './pages/violation/violation';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+//const server = "http://127.0.0.1:4587";
+const server = "http://67.205.163.34:4587";
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route>
-          <Route index element={<Dashboard server="http://67.205.163.34:4587"/>} />
-          <Route path="dashboard" element={<Dashboard  server="http://67.205.163.34:4587"/>} />
-          <Route path="violation/:id"  element={<Violation  server="http://67.205.163.34:4587"/>} />
           
+          <Route index element={<Dashboard server={server}/>} />
+          <Route path="dashboard" element={<Dashboard  server={server}/>} />
+          <Route path="violation/:id"  element={<Violation  server={server}/>} />
           
         </Route>
       </Routes>

@@ -19,6 +19,27 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
     #     "violation_name": "Asphalt"
     # }]
 
+    Vio_list = [
+        {"name": "Major Asphalt", "num": int(street_info.get("Total_Maj_Asphalt"))},
+        {"name": "Minor Asphalt", "num": int(street_info.get("Total_Min_Asphalt"))},
+        {"name": "Side Walk", "num": int(street_info.get("Total_Sidewalk"))},
+        {"name": "Lighting", "num": int(street_info.get("Total_Lighting"))},
+        {"name": "Cleanliness", "num": int(street_info.get("Total_Cleanliness"))},
+        {"name": "Afforestation", "num": int(street_info.get("Total_Afforestation"))},
+        {"name": "Fossils", "num": int(street_info.get("Total_Fossils"))},
+        {"name": "Rubble Source", "num": int(street_info.get("Total_Rubble_source"))},
+        {"name": "Street Sweeping", "num": int(street_info.get("Total_Street_Sweeping"))},
+        {"name": "Median", "num": int(street_info.get("Total_Median"))},
+        {"name": "Communication Tower", "num": int(street_info.get("Total_Communication_tower"))},
+    ]
+
+    for iter_num in range(len(Vio_list) - 1, 0, -1):
+        for idx in range(iter_num):
+            if Vio_list[idx]['num'] < Vio_list[idx + 1]['num']:
+                temp = Vio_list[idx]
+                Vio_list[idx] = Vio_list[idx + 1]
+                Vio_list[idx + 1] = temp
+
     pdf = FPDF(orientation='P', unit='pt', format='letter')
 
     pdf.add_page()
@@ -40,10 +61,88 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
     pdf.set_font(family='Times', style='B', size=14)
     txt1 = str(street_info.get("street_risk_rate"))
     pdf.cell(w=0, h=15, txt='Risk Rate:   ' + txt1 + "%", align='C', ln=1)
+
+    # ###################################################
+
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='B', size=15)
+    pdf.cell(w=50, h=15, txt='Statistics of Violations:', border=0, ln=0)
+    pdf.ln(20)
+    # ##########
+    for i in Vio_list:
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=50, h=15, txt='     '+i['name']+':', border=0, ln=0)
+        # if i['name'] == "Communication Tower":
+        #     pdf.cell(90)
+        # else:
+        #     pdf.cell(60)
+        pdf.cell(90)
+        pdf.cell(w=140, h=15, txt=format(str(i['num']).zfill(2)), border=0, ln=0)
+
+        pdf.ln(15)
+
+    # pdf.cell(w=50, h=15, txt='     Minor Asphalt:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Min_Asphalt")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    #
+    # pdf.cell(w=50, h=15, txt='     Side Walk:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Sidewalk")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    #
+    # pdf.cell(w=50, h=15, txt='     Lighting:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Lighting")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Cleanliness:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Cleanliness")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Afforestation:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Afforestation")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Fossils:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Fossils")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Rubble Source:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Rubble_source")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Street Sweeping:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Street_Sweeping")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Median:', border=0, ln=0)
+    # pdf.cell(60)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Median")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+    # pdf.cell(w=50, h=15, txt='     Communication Tower:', border=0, ln=0)
+    # pdf.cell(90)
+    # pdf.cell(w=140, h=15, txt=format(str(street_info.get("Total_Communication_tower")).zfill(2)), border=0, ln=0)
+    #
+    # pdf.ln(15)
+
+    # ####################################################
+
     pdf.set_font(family='Times', size=12)
     pdf.set_text_color(0, 0, 0)
     pdf.set_font(family='Times', style='B', size=15)
-    pdf.cell(w=0, h=50, txt='Street Status:', ln=1)
+    pdf.cell(w=0, h=50, txt='Street Status:', ln=1, align='L')
+
+    # #################################################################
     pdf.set_font(family='Times', style='I', size=12)
     pdf.cell(w=0, h=15, txt='Asphalt Health:  ', ln=0)
 
@@ -186,6 +285,106 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
         pdf.set_font(family='Times', size=12)
         pdf.cell(w=310, h=15, txt=str(street_info.get("Fossils")) + "%   ", border=0, ln=2, align='L', fill=1)
 
+    pdf.ln(15)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='I', size=12)
+    pdf.cell(w=0, h=15, txt='Rubble Source:  ', align='L', ln=0)
+
+    if street_info.get("Rubble_source") < 50:
+        pdf.set_fill_color(255, 0, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=110, h=15, txt=str(street_info.get("Rubble_source")) + "%   ", border=0, ln=2, align='L', fill=1)
+    elif street_info.get("Rubble_source") < 70:
+        pdf.set_fill_color(255, 165, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=210, h=15, txt=str(street_info.get("Rubble_source")) + "%   ", border=0, ln=2, align='L', fill=1)
+    else:
+        pdf.set_fill_color(0, 128, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=310, h=15, txt=str(street_info.get("Rubble_source")) + "%   ", border=0, ln=2, align='L', fill=1)
+
+
+    pdf.ln(15)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='I', size=12)
+    pdf.cell(w=0, h=15, txt='Street Sweeping:  ', align='L', ln=0)
+
+    if street_info.get("Street_Sweeping") < 50:
+        pdf.set_fill_color(255, 0, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=110, h=15, txt=str(street_info.get("Street_Sweeping")) + "%   ", border=0, ln=2, align='L', fill=1)
+    elif street_info.get("Street_Sweeping") < 70:
+        pdf.set_fill_color(255, 165, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=210, h=15, txt=str(street_info.get("Street_Sweeping")) + "%   ", border=0, ln=2, align='L', fill=1)
+    else:
+        pdf.set_fill_color(0, 128, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=310, h=15, txt=str(street_info.get("Street_Sweeping")) + "%   ", border=0, ln=2, align='L', fill=1)
+
+
+    pdf.ln(15)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='I', size=12)
+    pdf.cell(w=0, h=15, txt='Median:  ', align='L', ln=0)
+
+    if street_info.get("Median") < 50:
+        pdf.set_fill_color(255, 0, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=110, h=15, txt=str(street_info.get("Median")) + "%   ", border=0, ln=2, align='L', fill=1)
+    elif street_info.get("Median") < 70:
+        pdf.set_fill_color(255, 165, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=210, h=15, txt=str(street_info.get("Median")) + "%   ", border=0, ln=2, align='L', fill=1)
+    else:
+        pdf.set_fill_color(0, 128, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=310, h=15, txt=str(street_info.get("Median")) + "%   ", border=0, ln=2, align='L', fill=1)
+
+
+    pdf.ln(15)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font(family='Times', style='I', size=12)
+    pdf.cell(w=0, h=15, txt='Communication tower:  ', align='L', ln=0)
+
+    if street_info.get("Communication_tower") < 50:
+        pdf.set_fill_color(255, 0, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=110, h=15, txt=str(street_info.get("Communication_tower")) + "%   ", border=0, ln=2, align='L', fill=1)
+    elif street_info.get("Communication_tower") < 70:
+        pdf.set_fill_color(255, 165, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=210, h=15, txt=str(street_info.get("Communication_tower")) + "%   ", border=0, ln=2, align='L', fill=1)
+    else:
+        pdf.set_fill_color(0, 128, 0)
+        pdf.cell(-440)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font(family='Times', size=12)
+        pdf.cell(w=310, h=15, txt=str(street_info.get("Communication_tower")) + "%   ", border=0, ln=2, align='L', fill=1)
+
+    # ####################################################
     pdf.ln(25)
     pdf.set_text_color(0, 0, 0)
     pdf.set_font(family='Times', style='B', size=14)
@@ -217,7 +416,7 @@ def pdf_maker(street_name, street_info, violation_date_total, violation_table_da
         pdf.cell(w=45, h=15, txt="", border=0, ln=1, align='L', fill=1)
 
     pdf.set_font(family='Times', style='B', size=15)
-    pdf.ln(25)
+    pdf.ln(40)
     pdf.set_text_color(0, 0, 0)
     pdf.cell(w=0, h=15, txt='Cases Details:', ln=1)
     pdf.set_font(family='Times', style='B', size=10)
