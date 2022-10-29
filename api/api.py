@@ -18,6 +18,15 @@ import ast
 app = Flask(__name__)
 CORS(app)
 
+
+def convertDateTimetoImageName(datetime):
+    datetime=datetime.replace("-","")
+    datetime=datetime.replace(":","")
+    datetime=datetime.replace(".","")
+    datetime=datetime.replace(" ","")
+    return datetime
+
+
 def db_connection():
     host = '67.205.163.34'
     user = "sohail"
@@ -41,6 +50,19 @@ def show_violation_image(image_name):
     filename = image_name
     filepath = "./images/"+filename
     return send_file(filepath, mimetype='image/gif')
+
+@app.route('/uploadviolationimage/<iname>',methods = ['POST'])
+def uploadviolationimage(iname):
+    print("1234")
+    image = request.files['image']
+    print("2")
+    iname = iname.replace(',', '.')
+    print(iname)
+    newnameforimage=str(datetime.now())
+    newnameforimage=convertDateTimetoImageName(newnameforimage)+iname
+    image.save("./images/"+newnameforimage)
+    print(newnameforimage)
+    return jsonify({'name': newnameforimage})
 
 
 @app.route('/getpdf/<pdf_name>')
