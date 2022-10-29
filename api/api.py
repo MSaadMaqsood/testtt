@@ -13,6 +13,7 @@ from google_api import *
 from pdfmaker02 import *
 from collections import Counter
 import pytz
+import ast
 
 app = Flask(__name__)
 CORS(app)
@@ -21,9 +22,18 @@ def db_connection():
     host = '67.205.163.34'
     user = "sohail"
     password = "sohail123"
-    database = 'elm'
+    database = 'elm1'
     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
     return cnx
+
+
+# def db_connection():
+#     host = 'localhost'
+#     user = "root"
+#     password = ""
+#     database = 'elm'
+#     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
+#     return cnx
 
 
 @app.route('/show_violation_image/<image_name>')
@@ -42,10 +52,7 @@ def getpdf(pdf_name):
 @app.route('/insertviolationdata', methods = ['POST'])
 def inserttelemetryData():
     request_data=request.get_json()
-
-
     cnx = db_connection()
-
     cursor = cnx.cursor()
     query = ("INSERT INTO `violation`(`street_id`, `violation_type_id`, `details`, `accurate`, `risk`, `display_img`, `lat`, `long`, `start_latlng`, `end_latlng`, `violation_date`, `violation_time`, `violation_status`, `action_taken`, `user_id`) VALUES " + request_data['query'])
     cursor.execute(query)
@@ -65,6 +72,39 @@ def get_dashboard():
     return jsonify({"street_health": 95, "green_index": 95, "risk": 5, "data_map": data_map})
 
 
+# def violation_map_data():
+#     now = datetime.today()
+#     today_date = now.strftime("%Y-%m-%d")
+#     data = []
+#     cnx = db_connection()
+#     cursor = cnx.cursor()
+#     query = (
+#                 "SELECT `street_id`,`start_latlng`, `end_latlng` FROM `violation` WHERE `start_latlng` != '0' OR `end_latlng` != '0' ORDER By `street_id`,`violation_id` ASC;")
+#     cursor.execute(query)
+#     used = []
+#     list_for_circle = []
+#     for a, b, c in cursor:
+#         temp_start = b.split(',')
+#         if b != '0' and c != '0':
+#             temp_end = c.split(',')
+#             used.append([
+#                 {
+#                     "street_id": a,
+#                     "lat": float(temp_start[0]),
+#                     "lng": float(temp_start[1]),
+#                 }, {
+#                     "street_id": a,
+#                     "lat": float(temp_end[0]),
+#                     "lng": float(temp_end[1]),
+#                 },
+#             ])
+#         else:
+#             list_for_circle.append({"street_id": a,
+#                     "lat": float(temp_start[0]),
+#                     "lng": float(temp_start[1]), })
+#     return {'line': used, 'circle': list_for_circle}
+#
+
 def violation_map_data():
     now = datetime.today()
     today_date = now.strftime("%Y-%m-%d")
@@ -72,29 +112,32 @@ def violation_map_data():
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-                "SELECT `street_id`,`start_latlng`, `end_latlng` FROM `violation` WHERE `violation_date` = '"+today_date+"' AND (`start_latlng` != '0' OR `end_latlng` != '0') ORDER By `street_id`,`violation_id` ASC;")
+                "SELECT `streetid`, `side01`, `side02` FROM `map_view` WHERE 1;")
     cursor.execute(query)
     used = []
     list_for_circle = []
     for a, b, c in cursor:
-        temp_start = b.split(',')
-        if b != '0' and c != '0':
-            temp_end = c.split(',')
-            used.append([
-                {
-                    "street_id": a,
-                    "lat": float(temp_start[0]),
-                    "lng": float(temp_start[1]),
-                }, {
-                    "street_id": a,
-                    "lat": float(temp_end[0]),
-                    "lng": float(temp_end[1]),
-                },
-            ])
-        else:
-            list_for_circle.append({"street_id": a,
-                    "lat": float(temp_start[0]),
-                    "lng": float(temp_start[1]), })
+
+        for i in ast.literal_eval(b):
+            if i['end_latlng'] == '0,0':
+                temp_start = i['start_latlng'].split(',')
+                list_for_circle.append({"street_id": a,
+                                        "lat": float(temp_start[0]),
+                                        "lng": float(temp_start[1]), })
+            else:
+                used.append({"street_id": a, 'poly': i['polylines']})
+
+        for i in ast.literal_eval(c):
+            if i['end_latlng'] == '0,0':
+                temp_start = i['start_latlng'].split(',')
+                list_for_circle.append({"street_id": a,
+                                        "lat": float(temp_start[0]),
+                                        "lng": float(temp_start[1]), })
+            else:
+                used.append({"street_id": a, 'poly': i['polylines']})
+
+
+
     return {'line': used, 'circle': list_for_circle}
 
 
@@ -257,7 +300,7 @@ def get_violation_table_now_default(street_id):
     #             "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.street_id=" + str(
     #         street_id) + " AND (violation.violation_date='"+today_date+"' OR violation.violation_date='"+yesterday_date+"' );")
     query = ("SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.street_id=" + str(
-        street_id) + " AND violation.violation_date='"+today_date+"';")
+        street_id) + ";")
 
     cursor.execute(query)
 
@@ -370,4 +413,4 @@ def export_dashboard_csv():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=4587)
+    app.run(debug=True, host="0.0.0.0", port=1244)

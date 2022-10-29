@@ -565,10 +565,14 @@ tett  = [
     "display_img":"1.jpg",
     "violation_date":"2022-10-08",
     "violation_time":"14:29",
+    "device_id":0,
+    "polygon_img":"",
 
     "street_id":0,
     "street_name":"",
     "violation_type_id":0,
+
+
 
     "start_latlng":0,
     "end_latlng":0,

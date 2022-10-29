@@ -8,8 +8,7 @@ import Violation from './pages/violation/violation';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
-//const server = "http://127.0.0.1:4587";
-const server = "http://67.205.163.34:4587";
+const server = "http://67.205.163.34:1244";
 root.render(
   <React.StrictMode>
     <BrowserRouter>
