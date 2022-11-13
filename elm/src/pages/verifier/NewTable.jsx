@@ -37,7 +37,6 @@ export default class NewTable extends Component {
         lat: 0,
         lng: 0,
         status: "Not Reported",
-
       },
     };
     this.showModal = this.showModal.bind(this);

@@ -8,6 +8,7 @@ import Login from './pages/login/login';
 import Google_Api from './pages/googleAPI/googleAPI';
 import Verifier from './pages/verifier/verifier';
 import Street from './pages/verifier/street';
+import UserActivity from './pages/verifier/user_activity/user_activity';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -23,8 +24,8 @@ root.render(
           <Route path="violation/:id"  element={<Violation  server={server}/>} />
           <Route path="map_api" element={<Google_Api  server={server}/>} />
           <Route path="verifier"  element={<Verifier  server={server}/>} />
-          <Route path="street"  element={<Street  server={server}/>} />
           <Route path="verifier/street/:id"  element={<Street  server={server}/>} />
+          <Route path="verifier/user/:id"  element={<UserActivity server={server}/>} />
         </Route>
       </Routes>
     </BrowserRouter>

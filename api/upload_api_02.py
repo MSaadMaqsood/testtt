@@ -8,6 +8,16 @@ import polyline
 import time
 
 
+# def db_connection():
+#     host = 'localhost'
+#     user = "root"
+#     password = ""
+#     database = 'elm'
+#     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
+#     return cnx
+#
+
+
 def db_connection():
     host = '67.205.163.34'
     user = "sohail"
@@ -32,6 +42,7 @@ def get_map_api_():
 
 
 api_text = get_map_api_()
+server = "http://127.0.0.1:1244"
 #api_text = "AIzaSyAhpqm1hIWBkVzKvf7uyqCmYNRxwQwbZzo"
 
 google_request = 0
@@ -471,6 +482,41 @@ def insert_map_view(str_id, ref, side01, side02, total):
     cnx.close()
 
 
+def insert_violations_Street(violations):
+    query_data_list = []
+
+    for j in violations:
+        #j['display_img'] = "1.jpg"
+        tt = str(j['display_img']).replace('.', ',')
+        urlToUploadImage = server+"/uploadviolationimage/"+tt
+        my_img = {'image': open('to_upload_img/'+str(j['display_img']), 'rb')}
+        #my_img = {'image': open('to_upload_img/1.jpg', 'rb')}
+        r = requests.post(urlToUploadImage, files=my_img)
+        corr = 0
+        if int(j['accurate']) >= 80:
+            corr = -1
+        query_data_list.append("('" + str(j['street_id']) + "','" + str(
+            j['violation_type_id']) + "','" + str(j['details']) + "','" + str(
+            j['accurate']) + "','" + str(j['risk']) + "','" + r.json()['name'] + "','" + str(j['lat']) + "','" + str(
+            j['long']) + "','"+str(j['device_id'])+"','"+j['polygon_img']+"','" + str(
+            j['violation_date']) + "','2022-10-28 " + str(
+            j['violation_time']) + "','0','0',"+str(corr)+")")
+
+    query0 = query_data_list[0]
+    for j in range(1, len(query_data_list)):
+        query0 = query0 + "," + query_data_list[j]
+
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = (
+                "INSERT INTO `violation`(`street_id`, `violation_type_id`, `details`, `accurate`, `risk`, `display_img`, `lat`, `long`,`device_id`, `polygon_img`, `violation_date`, `violation_time`, `violation_status`, `action_taken`, `correct`) VALUES " +
+                query0)
+
+    cursor.execute(query)
+    cnx.commit()
+    cursor.close()
+
+    cnx.close()
 
 
 def update_map_view(str_id, side01, side02, total):

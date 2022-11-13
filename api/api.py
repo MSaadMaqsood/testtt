@@ -25,6 +25,13 @@ def convertDateTimetoImageName(datetime):
     return datetime
 
 
+# def db_connection():
+#     host = 'localhost'
+#     user = "root"
+#     password = ""
+#     database = 'elm'
+#     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
+#     return cnx
 def db_connection():
     host = '67.205.163.34'
     user = "sohail"
@@ -462,6 +469,7 @@ def get_map_api():
 @app.route('/get_vio_for_verify')
 def get_vio_for_verify():
     data = []
+    users = []
     cnx = db_connection()
     cursor = cnx.cursor()
     query = ("SELECT `street`.`streetid`,`street`.`streetname`, COUNT(1) FROM `street` INNER JOIN `violation` ON `violation`.`street_id` = `street`.`streetid` WHERE `violation`.`correct` = -1 GROUP BY `street`.`streetid`;")
@@ -473,8 +481,21 @@ def get_vio_for_verify():
             "count": c
         })
     cursor.close()
+    # ###################
+    cursor01 = cnx.cursor()
+    query01 = (
+        "SELECT `user_id`, `fullname`, `position` FROM `users`;")
+    cursor01.execute(query01)
+    for a, b, c in cursor01:
+        users.append({
+            "user_id": a,
+            "fullname": b,
+            "position": c
+        })
+    cursor01.close()
     cnx.close()
-    return {"streets": data}
+
+    return {"streets": data, "users": users}
 
 
 
@@ -626,6 +647,30 @@ def get_single_violation_Verify(violation_id):
     cnx.close()
     return violation_table_data
 
+
+@app.route('/get_user_activity/<userid>')
+def get_user_activity(userid):
+    data = []
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = ("SELECT `log_id`, `violation_id`,m1.violationname, m2.violationname, `correct_incorrect`, `entry_date` FROM `user_log` INNER JOIN `violation_type` AS m1 ON m1.`violationtypeid` = `user_log`.`prev_violation` INNER JOIN `violation_type` AS m2 ON m2.`violationtypeid` = `user_log`.`updated_violation` WHERE `user_id` = "+str(userid)+" Order BY log_id DESC;")
+    cursor.execute(query)
+    for a, b, c, d, e, f in cursor:
+        cor = "Correct"
+        if e == 0:
+            cor = "Incorrect"
+
+        data.append({
+            "log_id": a,
+            "violation_id": b,
+            "prev_vio": c,
+            "updated_vio": d,
+            "cor": cor,
+            "entry_date": f
+        })
+    cursor.close()
+    cnx.close()
+    return {'activity':data}
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=1244)
