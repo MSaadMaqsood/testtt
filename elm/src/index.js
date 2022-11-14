@@ -9,9 +9,11 @@ import Google_Api from './pages/googleAPI/googleAPI';
 import Verifier from './pages/verifier/verifier';
 import Street from './pages/verifier/street';
 import UserActivity from './pages/verifier/user_activity/user_activity';
+import AllViolations from './pages/allViolations/AllViolations';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 const server = "http://67.205.163.34:1244";
 root.render(
   <React.StrictMode>
@@ -26,6 +28,7 @@ root.render(
           <Route path="verifier"  element={<Verifier  server={server}/>} />
           <Route path="verifier/street/:id"  element={<Street  server={server}/>} />
           <Route path="verifier/user/:id"  element={<UserActivity server={server}/>} />
+          <Route path="allviolations"  element={<AllViolations  server={server}/>} />
         </Route>
       </Routes>
     </BrowserRouter>

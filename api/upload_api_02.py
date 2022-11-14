@@ -15,7 +15,7 @@ import time
 #     database = 'elm'
 #     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
 #     return cnx
-#
+
 
 
 def db_connection():

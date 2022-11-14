@@ -32,6 +32,8 @@ def convertDateTimetoImageName(datetime):
 #     database = 'elm'
 #     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
 #     return cnx
+
+
 def db_connection():
     host = '67.205.163.34'
     user = "sohail"
@@ -39,6 +41,7 @@ def db_connection():
     database = 'elm1'
     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
     return cnx
+
 
 
 @app.route('/get_map_api_')
@@ -671,6 +674,48 @@ def get_user_activity(userid):
     cursor.close()
     cnx.close()
     return {'activity':data}
+
+
+@app.route('/get_all_violation')
+def get_all_violation():
+
+    violation_table_data = list()
+
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = ("SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE 1 ORDER BY violation.violation_id DESC;")
+
+    cursor.execute(query)
+
+    for a, b, c, d, e, f, g, h, i, j in cursor:
+        str = "Correct"
+        if i == 0:
+            str = "Incorrect"
+        elif i == -1:
+            str = "Pending"
+        violation_table_data.append({
+            "violation_id": a,
+            "violation_type_id": b,
+            "accurate": c,
+            "risk": d,
+            "display_img": e,
+            "violation_date": f.strftime('%b %d, %Y'),
+            "violation_time": g.strftime('%H:%M'),
+            "violation_name": h,
+            "cor": str,
+            "dev_id": j
+        })
+
+    pages = math.floor(len(violation_table_data) / 10)
+    if not (len(violation_table_data) % 10 == 0):
+        pages = pages + 1
+
+    cursor.close()
+    cnx.close()
+    vv = get_vio_for_verify()
+
+    return {"myData": violation_table_data, "pages": pages, "vio": vv}
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=1244)

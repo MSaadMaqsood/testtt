@@ -183,10 +183,10 @@ export default function MiniDrawer() {
             <ListItemText primary="Map API"  onClick={() =>{  window.location.href ="/map_api";  }}/>
           </ListItem>
           <ListItem button>
-            <ListItemIcon>
+            <ListItemIcon onClick={() =>{  window.location.href ="/allviolations";  }}>
               <GroupIcon />
             </ListItemIcon>
-            <ListItemText primary="User Management" />
+            <ListItemText primary="All Violations" onClick={() =>{  window.location.href ="/allviolations";  }}/>
           </ListItem>
           <ListItem button>
             <ListItemIcon>
