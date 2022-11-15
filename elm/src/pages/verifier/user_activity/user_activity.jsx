@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import TopNavbar from "../../global/components/navbar";
 import MiniDrawer from "../../global/components/Sidebar";
 import { Button, Modal, Input } from "react-bootstrap";
+import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import ModalMap from "../../violation/ModalMap";
 export default class UserActivity extends Component {
@@ -67,7 +68,10 @@ export default class UserActivity extends Component {
         <div>
             <MiniDrawer />
             <TopNavbar />
+            <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
             <div className="verifier_cases_details_table">
+            <h2><u>{("User Activity Table")}</u></h2>
+            <br />
                 <div class="row">
                 <div class="table-responsive ">
             <table class="table table-striped table-hover table-bordered">
@@ -131,6 +135,9 @@ export default class UserActivity extends Component {
             </Modal.Header>
             <Modal.Body>
               <Form>
+              <table className="model_table_">
+              <tr className="model_table_row">
+                    <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Violation Type</Form.Label>
                   <Form.Control
@@ -140,6 +147,8 @@ export default class UserActivity extends Component {
                     disabled
                   />
                 </Form.Group>
+                </td>
+                <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
@@ -151,7 +160,8 @@ export default class UserActivity extends Component {
                     disabled
                   />
                 </Form.Group>
-                <table className="model_table_">
+                </td>
+                </tr>
                   <tr className="model_table_row">
                     <td className="model_table_data">
                     <Form.Group className="mb-4">
@@ -162,7 +172,7 @@ export default class UserActivity extends Component {
                   />
                 </Form.Group>
                     </td>
-                    <td>
+                    <td className="model_table_data">
                     <Form.Group className="mb-4">
                   <Form.Label>Accurate</Form.Label>
                   <Form.Control
@@ -231,6 +241,7 @@ export default class UserActivity extends Component {
 
           {/* Model Box Finsihs */}
         </div>
+        </Card>
         </div>
     );
   }

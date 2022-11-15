@@ -54,14 +54,15 @@ export default class Street extends Component {
       <div >
         <TopNavbar />
         <MiniDrawer />
+        <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
       <div className="verifier_street_card">
 
-        <Divider className="violation_divider" />
-
-        <h6 style={{ marginLeft: "10%" }}>
-          Total violations: {this.state.total_vioaltions}
-        </h6>
         
+      <h3 style={{marginLeft: "20px" ,marginTop:"30px"}}><u>{("UnVerified Violations Table")}</u></h3>
+        <h5 style={{ marginLeft: "20px" ,marginTop:"10px"}}>
+          Total violations: {this.state.total_vioaltions}
+        </h5>
+        <Divider className="violation_divider" />
         <NewTable
           table_data={this.state.violation_table}
           ref={this.child}
@@ -86,6 +87,7 @@ export default class Street extends Component {
         </div> */}
         <Divider className="violation_divider" />
         </div>
+        </Card>
       </div>
     );
   }

@@ -453,3 +453,14 @@
   padding-left: 10px;
   padding-right: 10px;
 }
+
+.model_table_{
+  width: 100%;
+  
+}
+.model_table_row{
+  width: 100%;
+}
+.model_table_data{
+  width: 48%;
+}

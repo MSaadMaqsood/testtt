@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import TopNavbar from "../global/components/navbar";
 import MiniDrawer from "../global/components/Sidebar";
+import Card from "react-bootstrap/Card";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
@@ -44,7 +45,10 @@ export default class Verifier extends Component {
     <div>
       <MiniDrawer />
       <TopNavbar />
+      <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
       <div className="verifier_cases_details_table">
+      <h2><u>{!this.state.show_streets && ("User Information Table")}</u></h2>
+      <h2><u>{this.state.show_streets && ("Streets UnVerified Violations Table")}</u></h2>
         <div style={{ paddingBottom:"30px",paddingRight:"30px" }}>
         {
               this.state.show_streets && ( <Button
@@ -74,9 +78,9 @@ export default class Verifier extends Component {
               this.state.show_streets && (<table class="table table-striped table-hover table-bordered">
               <thead>
                 <tr>
-                  <th style={{ fontFamily: "Verdana" }}>STREET NAME</th>
+                  <th style={{ fontFamily: "Verdana" }}>Street Name</th>
                   <th style={{ fontFamily: "Verdana" }}>
-                    NUM OF UNREPORTED VIOLATIONS{" "}
+                    Count of Unverified Violations{" "}
                   </th>
                   <th style={{ fontFamily: "Verdana" }}></th>
                 </tr>
@@ -142,6 +146,7 @@ export default class Verifier extends Component {
           </div>
         </div>
       </div>
+      </Card>
     </div>
   );
   }

@@ -65,7 +65,7 @@ directionsCallback  = para => response => {
              <Map
                  google={this.props.google}
                  containerStyle={{}}
-                 style={{width: "98%", height: "600px"}}
+                 style={{width: "92%", height: "600px"}}
                  center={center0}
                  initialCenter={center0}
                  zoom={12}

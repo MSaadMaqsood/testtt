@@ -18,19 +18,18 @@ code {
     width: 95%;
 }
 .verifier_cases_details_table{
-    margin-top: -5%;
-    margin-left: 8%;
+    margin-top: 20px;
+    margin-left: 1%;
     
 }
 .verifier_cases_details_table_big {
     margin-right: 0% !important;
-    margin-left: 8%;
-    margin-top: -5%;
+    margin-left: 10px;
+    margin-top: -30px;
     
 }
 .verifier_action_buttons {
     display: flex !important;
-    margin-left: 20% !important;
 }
 
 .verifier_action_buttons .btnn {
@@ -68,15 +67,8 @@ code {
     height: 300px !important;
 }
 
-.model_table_{
-    width: 100%;
-    
-}
-.model_table_row{
-    width: 100%;
-}
-.model_table_data{
-    width: 48%;
+.card_bg{
+    background-color: rgba(250, 243, 243, 0.363);
 }
 /* .modal_height_styles{
 height: 90vh !important;

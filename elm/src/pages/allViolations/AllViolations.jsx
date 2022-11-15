@@ -3,6 +3,7 @@ import "../global/style/style.css";
 import { Navigate } from "react-router-dom";
 import TopNavbar from "../global/components/navbar";
 import MiniDrawer from "../global/components/Sidebar";
+import Card from "react-bootstrap/Card";
 import { Button, Modal, Input } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import ModalMap from "../violation/ModalMap";
@@ -208,6 +209,7 @@ this.setState({
         <div>
             <MiniDrawer />
             <TopNavbar />
+            <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
             <div className="verifier_cases_details_table">
             
             <div style={{display:"flex",flexDirection:"row", paddingRight:"50px"}}>
@@ -281,6 +283,9 @@ this.setState({
             </Modal.Header>
             <Modal.Body>
               <Form>
+              <table className="model_table_">
+              <tr className="model_table_row">
+                    <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Violation Type</Form.Label>
                   <Form.Control
@@ -290,6 +295,8 @@ this.setState({
                     disabled
                   />
                 </Form.Group>
+                </td>
+                <td>
                 <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
@@ -301,7 +308,8 @@ this.setState({
                     disabled
                   />
                 </Form.Group>
-                <table className="model_table_">
+                </td>
+                </tr>
                   <tr className="model_table_row">
                     <td className="model_table_data">
                     <Form.Group className="mb-4">
@@ -389,6 +397,7 @@ this.setState({
             />
           </Stack>
         </div>
+        </Card>
         </div>
     );
   }

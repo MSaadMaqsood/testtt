@@ -36,6 +36,7 @@ class Violation extends Component {
         "Street_Sweeping": 100,
         "Median": 100,
         "Communication_tower": 100,
+        "Fly_Poster":100,
         
         "Total_Min_Asphalt": 0,
         "Total_Maj_Asphalt": 0,
@@ -48,6 +49,7 @@ class Violation extends Component {
         "Total_Street_Sweeping": 0,
         "Total_Median": 0,
         "Total_Communication_tower": 0,
+        "Total_Fly_Poster":0
     },
       list_of_streets: [],
       violation_table: {"myData": [], "pages": 1},
@@ -236,21 +238,21 @@ class Violation extends Component {
                   </Card>
                   <Card className="violation_content_card">
                     <Card.Title className="violation_status_card_title">
-                      Sidewalk Health
+                      Fly Poster Health
                     </Card.Title>
                     <Box
                       sx={{
                         width: this.state.render
-                          ? this.state.street_health.Sidewalk.toString() +
+                          ? this.state.street_health.Fly_Poster.toString() +
                             "%"
                           : "0",
                         height: 25,
                         backgroundColor:
                           this.state.render &&
-                          this.state.street_health.Sidewalk > 70
+                          this.state.street_health.Fly_Poster > 70
                             ? "#00c04b"
                             : this.state.render &&
-                              this.state.street_health.Sidewalk >= 50
+                              this.state.street_health.Fly_Poster >= 50
                             ? "orange"
                             : "red",
                         marginTop: "15px",
@@ -259,7 +261,7 @@ class Violation extends Component {
                     >
                       <p className="violation_status_card_box_text">
                         {this.state.render &&
-                          this.state.street_health.Sidewalk}
+                          this.state.street_health.Fly_Poster}
                         %
                       </p>
                     </Box>

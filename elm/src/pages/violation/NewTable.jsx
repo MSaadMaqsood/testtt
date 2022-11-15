@@ -141,6 +141,10 @@ export default class NewTable extends Component {
             </Modal.Header>
             <Modal.Body>
               <Form>
+              <table className="model_table_">
+                
+              <tr className="model_table_row">
+                    <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Violation Type</Form.Label>
                   <Form.Control
@@ -150,6 +154,8 @@ export default class NewTable extends Component {
                     disabled
                   />
                 </Form.Group>
+                </td>
+                <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
@@ -160,7 +166,12 @@ export default class NewTable extends Component {
                     }
                     disabled
                   />
+
                 </Form.Group>
+                </td>
+                </tr>
+                  <tr className="model_table_row">
+                    <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Risk</Form.Label>
                   <Form.Control
@@ -168,6 +179,8 @@ export default class NewTable extends Component {
                     disabled
                   />
                 </Form.Group>
+                </td>
+                <td className="model_table_data">
                 <Form.Group className="mb-3">
                   <Form.Label>Accurate</Form.Label>
                   <Form.Control
@@ -175,6 +188,9 @@ export default class NewTable extends Component {
                     disabled
                   />
                 </Form.Group>
+                </td>
+                </tr>
+                </table>
                 <Form.Group className="mb-3">
                   <Form.Label>Current Status</Form.Label>
                   <Form.Control

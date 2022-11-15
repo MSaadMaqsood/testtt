@@ -170,11 +170,11 @@ def get_violation_page(street_id):
 
 def get_street_health(street_id, violation_count):
     Asphalt = Sidewalk = Lighting = Cleanliness = Afforestation = Fossils = 100
-    Rubble_source = Street_Sweeping = Median = Communication_tower = 100
+    Rubble_source = Street_Sweeping = Median = Communication_tower = Fly_Poster = 100
 
     Total_Min_Asphalt = Total_Maj_Asphalt = Total_Sidewalk = Total_Lighting = Total_Cleanliness = 0
     Total_Afforestation = Total_Fossils = Total_Rubble_source = Total_Street_Sweeping = 0
-    Total_Median = Total_Communication_tower = 0
+    Total_Median = Total_Communication_tower = Total_Fly_Poster =0
 
     violation_count.sort()
     c = Counter(violation_count)
@@ -250,8 +250,14 @@ def get_street_health(street_id, violation_count):
             if Communication_tower < 0:
                 Communication_tower = 0
             continue
+        elif int(a[i]) == 12:
+            Fly_Poster = Fly_Poster - b[i] * 2
+            Total_Fly_Poster = b[i]
+            if Fly_Poster < 0:
+                Fly_Poster = 0
+            continue
 
-    green_index = int((Asphalt+Sidewalk+Lighting+Cleanliness+Afforestation+Fossils+Rubble_source+Street_Sweeping+Median+Communication_tower)/10)
+    green_index = int((Asphalt+Sidewalk+Lighting+Cleanliness+Afforestation+Fossils+Rubble_source+Street_Sweeping+Median+Communication_tower+Fly_Poster)/11)
     return {
                 "street_risk_rate": 100-green_index,
                 "green_index": green_index,
@@ -265,6 +271,7 @@ def get_street_health(street_id, violation_count):
                 "Street_Sweeping": Street_Sweeping,
                 "Median": Median,
                 "Communication_tower": Communication_tower,
+                "Fly_Poster": Fly_Poster,
 
                 "Total_Min_Asphalt": Total_Min_Asphalt,
                 "Total_Maj_Asphalt": Total_Maj_Asphalt,
@@ -277,6 +284,7 @@ def get_street_health(street_id, violation_count):
                 "Total_Street_Sweeping": Total_Street_Sweeping,
                 "Total_Median": Total_Median,
                 "Total_Communication_tower": Total_Communication_tower,
+                "Total_Fly_Poster": Total_Fly_Poster
             }
 
 

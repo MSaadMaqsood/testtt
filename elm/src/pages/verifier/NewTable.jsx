@@ -208,7 +208,11 @@ export default class NewTable extends Component {
                   </tr>
                 </table>
               
-                <Form.Group className="mb-3">
+                
+                <table className="model_table_">
+                  <tr className="model_table_row">
+                    <td style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
                     placeholder={
@@ -219,10 +223,9 @@ export default class NewTable extends Component {
                     disabled
                   />
                 </Form.Group>
-                <table className="model_table_">
-                  <tr className="model_table_row">
-                    <td className="model_table_data">
-                    <Form.Group className="mb-4">
+                    </td>
+                    <td  style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Risk</Form.Label>
                   <Form.Control
                     placeholder={this.state.model_show_violation_info.risk}
@@ -230,8 +233,8 @@ export default class NewTable extends Component {
                   />
                 </Form.Group>
                     </td>
-                    <td>
-                    <Form.Group className="mb-4">
+                    <td   style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Accurate</Form.Label>
                   <Form.Control
                     placeholder={this.state.model_show_violation_info.accurate}
@@ -244,19 +247,19 @@ export default class NewTable extends Component {
                 
               </Form>
               <div
-              style={{ marginLeft: "30%", marginTop: "10px" }}
+              style={{ marginLeft: "40%", marginTop: "10px" }}
               >
                 <label>{this.state.show_uploading && "Updating Wait......"}</label>
               </div>
               <div
                 className="verifier_action_buttons"
-                style={{ marginLeft: "20%", marginTop: "10px" }}
+                style={{ marginLeft: "35%", marginTop: "10px" }}
               >
                 <button type="button" class="btnn" onClick={this.update_violation_cor}>
-                  Verify
+                  Correct
                 </button>
                 <button type="button" class="btnn" onClick={this.update_violation_incor}>
-                  Unverify
+                  Incorrect
                 </button>
               </div>
               <div className="Modal_verifier">
@@ -312,14 +315,14 @@ export default class NewTable extends Component {
 
           {/* Model Box Finsihs */}
         </div>
-        <div className="pagination_style">
+        {/* <div className="pagination_style">
           <Stack spacing={2}>
             <Pagination
               count={this.props.table_data.pages}
               onChange={this.handleChange}
             />
           </Stack>
-        </div>
+        </div> */}
       </div>
       // </Card>
     );
