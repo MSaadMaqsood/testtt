@@ -52,8 +52,8 @@ class Violation extends Component {
         "Total_Fly_Poster":0
     },
       list_of_streets: [],
-      violation_table: {"myData": [], "pages": 1},
-      to_show_violation_table:{"myData": [], "pages": 1},
+      violation_table: {"myData": [], "pages": 1,"tree_Count":0 },
+      to_show_violation_table:{"myData": [], "pages": 1, "tree_Count":0},
       render: false,
       selected_date: "",
       to_render:false,
@@ -552,12 +552,16 @@ class Violation extends Component {
                   <Card.Text className="violation_content_card_body_text_subheadings_firstone">
                     Cases Details
                   </Card.Text>
+                  <div  class="violation_cases_details_tree_count">
+                        <h4>Trees Count: {this.state.to_show_violation_table.tree_Count}</h4>
+                  </div>
                   <Collapsible trigger={<ExpandCircleDownIcon />}>
                     <Divider className="violation_divider" />
-
+                    
                     <h6 className="violation_cases_deatils_total_violations">
                       Total violations: {this.state.total_vioaltions}
                     </h6>
+                    
                     <div className="violation_cases_details_filter">
                       <h6>Filter by: </h6>
                       <input className="filter_datee" type="date" id="date" name="date" onChange={this.date_change} value={this.state.selected_date}/>

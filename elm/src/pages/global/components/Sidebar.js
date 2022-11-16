@@ -163,48 +163,31 @@ export default function MiniDrawer() {
             </ListItemIcon>
             <ListItemText primary="Home"  onClick={() =>{  window.location.href ="/dashboard";  }} />
           </ListItem>
-          <ListItem button>
+          <ListItem button >
             <ListItemIcon   onClick={() =>{  window.location.href ="/violation/1";  }}>
             <ListNested />
             </ListItemIcon>
-            <ListItemText primary="Violation"   onClick={() =>{  window.location.href ="/violation/1";  }}/>
+            <ListItemText primary="Streets"   onClick={() =>{  window.location.href ="/violation/1";  }}/>
           </ListItem>
 
           <ListItem button>
-            <ListItemIcon>
-              <DescriptionIcon   onClick={() =>{  window.location.href ="/verifier";  }}/>
+            <ListItemIcon onClick={() =>{  window.location.href ="/verifier";  }}>
+              
+              <GroupIcon />
             </ListItemIcon>
             <ListItemText primary="Verifier"   onClick={() =>{  window.location.href ="/verifier";  }}/>
           </ListItem>
-          <ListItem button>
+          {/* <ListItem button>
             <ListItemIcon>
               <CodeIcon  onClick={() =>{  window.location.href ="/map_api";  }}/>
             </ListItemIcon>
             <ListItemText primary="Map API"  onClick={() =>{  window.location.href ="/map_api";  }}/>
-          </ListItem>
+          </ListItem> */}
           <ListItem button>
             <ListItemIcon onClick={() =>{  window.location.href ="/allviolations";  }}>
-              <GroupIcon />
+            <DescriptionIcon   />
             </ListItemIcon>
             <ListItemText primary="All Violations" onClick={() =>{  window.location.href ="/allviolations";  }}/>
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <LoopIcon />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <AddIcon />
-            </ListItemIcon>
-            <ListItemText primary="Add a Device" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <ExitToAppIcon />
-            </ListItemIcon>
-            <ListItemText primary="Logout" />
           </ListItem>
         </List>
       </Drawer>

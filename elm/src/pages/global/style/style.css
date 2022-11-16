@@ -172,7 +172,14 @@
   margin-top: -5px;
 }
 
-
+.violation_cases_details_tree_count{
+  height: 35px;
+  float: right !important;
+  margin-left: auto;
+  margin-right: 30px;
+  margin-top: -5px;
+  order: 2;
+} 
 
 .violation_cases_details_filter .now{
   height: 25px;

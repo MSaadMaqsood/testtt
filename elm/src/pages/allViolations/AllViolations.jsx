@@ -10,6 +10,7 @@ import ModalMap from "../violation/ModalMap";
 import { Pages } from "@material-ui/icons";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import Moment from 'react-moment';
 
 export default class AllViolations extends Component {
   constructor(props) {
@@ -40,7 +41,8 @@ export default class AllViolations extends Component {
           filter_table: {
             violation_type: -5,
             device_id: "",
-            Correct:""
+            Correct:"",
+            filter_date:"",
           }
     };
     this.get_all_violations = this.get_all_violations.bind(this);
@@ -49,6 +51,7 @@ export default class AllViolations extends Component {
     this.change_violation_type = this.change_violation_type.bind(this);
     this.change_correct_type = this.change_correct_type.bind(this);
     this.handleChange_devid = this.handleChange_devid.bind(this);
+    this.handleChange_date = this.handleChange_date.bind(this);
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
     this.get_all_violations();
@@ -120,6 +123,16 @@ export default class AllViolations extends Component {
         });
         filter_data = tempx;
     }
+    if (this.state.filter_table.filter_date == ""){
+    }else{
+        let tempx = [];
+        filter_data.forEach(element => {
+            if(element.violation_date_format == this.state.filter_table.filter_date){
+                tempx.push(element);
+            }
+        });
+        filter_data = tempx;
+    }
 var cpages = Math.floor((filter_data.length) / 10);
 if ((filter_data.length) % 10 == 0){
 
@@ -144,7 +157,8 @@ this.setState({
         filter_table: {
             violation_type: -5,
             device_id: "",
-            Correct:""
+            Correct:"",
+            filter_date:""
           }
     })
   }
@@ -170,14 +184,22 @@ this.setState({
         filter_table:xx
     }); 
   }
+
+  handleChange_date(e){
+    let xx= this.state.filter_table;
+    xx.filter_date = e.target.value;
+    
+    this.setState({
+        filter_table:xx
+    }); 
+  }
+
   render() {
     const calll = () => {
         const hh =this.state.show_data.slice(
           (this.state.currentPage - 1) * 10,
           (this.state.currentPage - 1) * 10 + 10
         );
-        console.log(this.state.show_data);
-        console.log(hh);
         const rows = hh.map((x) => {
           return (
             <tr>
@@ -213,16 +235,16 @@ this.setState({
             <div className="verifier_cases_details_table">
             
             <div style={{display:"flex",flexDirection:"row", paddingRight:"50px"}}>
-            <div class="input-group mb-3" style={{width:"900px"}}>
-                <span class="input-group-text" id="basic-addon1">Violation Type </span>
+            <div class="input-group mb-3" style={{width:"600px"}}>
+                <span class="input-group-text" id="basic-addon1">Type </span>
                 <select class="form-select" aria-label="Default select example" onChange={this.change_violation_type} >
                     <option value="-5"></option>
                     {this.state.vio_type_list.map((O) => ( <option value={O.vio_id}>{O.name}</option> ))} 
                 </select>
             </div>
             
-            <div class="input-group mb-3"  style={{width:"900px",marginLeft:"10px"}}>
-                <span class="input-group-text" id="basic-addon1">Correct status </span>
+            <div class="input-group mb-3"  style={{width:"600px",marginLeft:"10px"}}>
+                <span class="input-group-text" id="basic-addon1">Status </span>
                 <select class="form-select" aria-label="Default select example" onChange={this.change_correct_type} >
                     <option value=""></option>
                     <option value="Correct">Correct</option>
@@ -230,13 +252,16 @@ this.setState({
                     <option value="Pending">Pending</option>
                 </select>
             </div>
-            <div class="input-group mb-3"  style={{width:"900px",marginLeft:"10px"}}>
-                <span class="input-group-text" id="basic-addon1">Device ID: </span>
+            <div class="input-group mb-3"  style={{width:"600px",marginLeft:"10px"}}>
+                <span class="input-group-text" id="basic-addon1">Device: </span>
                 <input type="text" class="form-control" value={this.state.filter_table.device_id} onChange={this.handleChange_devid} />
             </div>
-            
-            <button type="button" class="btn btn-primary mb-3"  onClick={this.show_filter}  style={{width:"400px"}}>Filter </button>
-            <button type="button" class="btn btn-danger mb-3"  onClick={this.clear_filter}  style={{width:"400px"}}>Reset Filter </button>
+            <div class="input-group mb-3"  style={{width:"700px",marginLeft:"10px"}}>
+                <span class="input-group-text" id="basic-addon1">Date: </span>
+                <input type="date" class="form-control" value={this.state.filter_table.filter_date}  onChange={this.handleChange_date} ></input>
+            </div>
+            <button type="button" class="btn btn-primary mb-3"  onClick={this.show_filter}  style={{width:"300px"}}>Filter </button>
+            <button type="button" class="btn btn-danger mb-3"  onClick={this.clear_filter}  style={{width:"300px"}}>Reset Filter </button>
             </div>
                 <div class="row" style={{paddingRight:"50px"}}>
                 <div class="table-responsive ">

@@ -117,8 +117,9 @@ directionsCallback  = para => response => {
                         strokeColor='transparent'
                         strokeOpacity={0}
                         strokeWeight={5}
-                        fillColor='#00FF00'
+                        fillColor='green'
                         fillOpacity={0.8}
+                        onClick={() =>{  window.location.href ="/violation/"+latlng[0].street_id;  }}
                       />
                   ))
                  }

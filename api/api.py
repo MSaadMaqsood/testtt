@@ -139,6 +139,7 @@ def get_dashboard():
     return jsonify({"street_health": 95, "green_index": 95, "risk": 5, "data_map": data_map,"tree_data":tree_data})
 
 
+
 def violation_map_data():
     now = datetime.today()
     today_date = now.strftime("%Y-%m-%d")
@@ -236,8 +237,7 @@ def get_street_health(street_id, violation_count):
     c = Counter(violation_count)
     a = list(c.keys())
     b = list(c.values())
-    print(a, b)
-    print(a)
+
     for i in range(len(a)):
         if int(a[i]) == 1:
             Asphalt = Asphalt - b[i] * 3
@@ -363,6 +363,26 @@ def get_street_list(street_id):
     return data, street_name
 
 
+def get_tree_count(street_id, st_date= ""):
+    street_count = 0
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    if st_date == "":
+        query = (
+            "SELECT `streetid`, `total_violations` FROM `map_tree_view` WHERE `streetid` = "+str(street_id)+" ORDER BY `upload_date` DESC;")
+    else:
+        query = (
+                "SELECT `streetid`, `total_violations` FROM `map_tree_view` WHERE `streetid` = " + str(
+            street_id) + " and `upload_date` = '"+str(st_date)+"';")
+    cursor.execute(query)
+
+    for a, b in cursor:
+        street_count = int(b)
+    cursor.close()
+    cnx.close()
+    return street_count
+
+
 def get_violation_table_now_default(street_id):
     violation_count_list = []
     now = datetime.today()
@@ -397,7 +417,7 @@ def get_violation_table_now_default(street_id):
         pages = pages + 1
     cursor.close()
     cnx.close()
-    return {"myData": violation_table_data, "pages": pages},violation_count_list
+    return {"myData": violation_table_data, "pages": pages, "tree_Count": get_tree_count(street_id)}, violation_count_list
 
 
 @app.route('/get_violation_table_by_date/<street_id>/<fdate>')
@@ -433,7 +453,7 @@ def get_violation_table_by_date(street_id, fdate):
         pages = pages + 1
     cursor.close()
     cnx.close()
-    return {"myData": violation_table_data, "pages": pages}
+    return {"myData": violation_table_data, "pages": pages, "tree_Count": get_tree_count(street_id, new_date)}
 
 
 @app.route('/get_single_violation/<violation_id>')
@@ -764,6 +784,7 @@ def get_all_violation():
             "risk": d,
             "display_img": e,
             "violation_date": f.strftime('%b %d, %Y'),
+            "violation_date_format": f.strftime('%Y-%m-%d'),
             "violation_time": g.strftime('%H:%M'),
             "violation_name": h,
             "cor": str,
