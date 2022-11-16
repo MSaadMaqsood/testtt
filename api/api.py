@@ -86,6 +86,27 @@ def uploadviolationimage(iname):
     return jsonify({'name': newnameforimage})
 
 
+@app.route('/uploadtreeimage/<iname>', methods = ['POST'])
+def uploadtreeimage(iname):
+    #####
+    req = request.json
+    img_str = req['image']
+    iname = iname.replace(',', '.')
+
+    newnameforimage = str(datetime.now())
+    newnameforimage = convertDateTimetoImageName(newnameforimage) + iname
+    # decode the image
+    jpg_original = base64.b64decode(img_str)
+    jpg_as_np = np.frombuffer(jpg_original, dtype=np.uint8)
+    img = cv2.imdecode(jpg_as_np, flags=1)
+    cv2.imwrite("./tree_images/"+newnameforimage, img)
+    ###
+    # image = request.files['image']
+    # image.save("./images/"+newnameforimage)
+
+    return jsonify({'name': newnameforimage})
+
+
 @app.route('/getpdf/<pdf_name>')
 def getpdf(pdf_name):
     filename = pdf_name
@@ -114,7 +135,8 @@ def inserttelemetryData():
 def get_dashboard():
 
     data_map = violation_map_data()
-    return jsonify({"street_health": 95, "green_index": 95, "risk": 5, "data_map": data_map})
+    tree_data = violation_tree_map_data()
+    return jsonify({"street_health": 95, "green_index": 95, "risk": 5, "data_map": data_map,"tree_data":tree_data})
 
 
 def violation_map_data():
@@ -152,6 +174,40 @@ def violation_map_data():
 
     return {'line': used, 'circle': list_for_circle}
 
+def violation_tree_map_data():
+    now = datetime.today()
+    today_date = now.strftime("%Y-%m-%d")
+    data = []
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = (
+                "SELECT `streetid`, `side01`, `side02` FROM `map_tree_view` WHERE 1;")
+    cursor.execute(query)
+    used = []
+    list_for_circle = []
+    for a, b, c in cursor:
+
+        for i in ast.literal_eval(b):
+            if i['end_latlng'] == '0,0':
+                temp_start = i['start_latlng'].split(',')
+                list_for_circle.append({"street_id": a,
+                                        "lat": float(temp_start[0]),
+                                        "lng": float(temp_start[1]), })
+            else:
+                used.append({"street_id": a, 'poly': i['polylines']})
+
+        for i in ast.literal_eval(c):
+            if i['end_latlng'] == '0,0':
+                temp_start = i['start_latlng'].split(',')
+                list_for_circle.append({"street_id": a,
+                                        "lat": float(temp_start[0]),
+                                        "lng": float(temp_start[1]), })
+            else:
+                used.append({"street_id": a, 'poly': i['polylines']})
+
+
+
+    return {'line': used, 'circle': list_for_circle}
 
 """################################### Violation Page ######################################################"""
 

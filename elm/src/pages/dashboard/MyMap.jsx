@@ -82,7 +82,18 @@ directionsCallback  = para => response => {
                      />
                      
                      ))}
-                
+
+                {this.props.tree.line.map((latlng)=>(
+                     <Polyline
+                        path={latlng.poly
+                        }
+                         strokeColor="green"
+                         strokeOpacity={1}
+                         strokeWeight={6}
+                         onClick={() =>{  window.location.href ="/violation/"+latlng.street_id;  }}
+                     />
+                     
+                     ))}
                  {
                   this.props.data.circle.map((latlng)=>(
                     <Circle
@@ -93,6 +104,20 @@ directionsCallback  = para => response => {
                         strokeOpacity={0}
                         strokeWeight={5}
                         fillColor='#FF0000'
+                        fillOpacity={0.8}
+                      />
+                  ))
+                 }
+
+                 {
+                  this.props.tree.circle.map((latlng)=>(
+                    <Circle
+                        radius={8}
+                        center={latlng}
+                        strokeColor='transparent'
+                        strokeOpacity={0}
+                        strokeWeight={5}
+                        fillColor='#00FF00'
                         fillOpacity={0.8}
                       />
                   ))

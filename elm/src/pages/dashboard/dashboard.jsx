@@ -17,6 +17,7 @@ class Dashboard extends Component {
       green_index: 0,
       risk: 0,
       data_map: {'line':[],'circle':[]},
+      tree_map: {'line':[],'circle':[]},
       render: true,
     };
     console.log(this.props.server);
@@ -44,7 +45,8 @@ class Dashboard extends Component {
         street_health: response.data.street_health,
         green_index: response.data.green_index,
         risk: response.data.risk,
-        data_map: response.data.data_map
+        data_map: response.data.data_map,
+        tree_map: response.data.tree_data
       });
     });
   }
@@ -131,7 +133,7 @@ class Dashboard extends Component {
             </div>
             <label>Last update 12h ago</label>
             <div>
-              <MapContainer data={this.state.data_map} />
+              <MapContainer data={this.state.data_map} tree ={this.state.tree_map}/>
             </div>
           </div>
         </div>
