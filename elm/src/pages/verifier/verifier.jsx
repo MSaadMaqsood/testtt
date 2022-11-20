@@ -11,35 +11,86 @@ export default class Verifier extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [],
+      show_users: [],
       users:[],
-      show_streets: false
-    }
+      filter_table: {
+        fullname: "",
+        position: ""
+      }
+     }
     this.GetData = this.GetData.bind(this);
-    this.Show_user = this.Show_user.bind(this);
-    this.Show_street = this.Show_street.bind(this);
+    this.apply_filter = this.apply_filter.bind(this);
+    this.reset_filter = this.reset_filter.bind(this);
+    this.handleChange_fullname = this.handleChange_fullname.bind(this);
+    this.handleChange_pos = this.handleChange_pos.bind(this);
     this.GetData();
-  }
-  Show_user(){
-    this.setState({show_streets: false});
-  }
-  Show_street(){
-    this.setState({show_streets: true});
   }
   GetData() {
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_vio_for_verify")
+      .get(this.props.server + "/get_userlog_list_all")
       .then(function (response) {
         com.setState({
-          data: response.data.streets,
-          users: response.data.users
-          
+          users: response.data.users,
+          show_users: response.data.users
         });
       });
   }
-  
+  apply_filter(){
+
+    let filter_data = [];
+    if (this.state.filter_table.fullname == ""){
+        filter_data = this.state.users;
+    }else{
+        this.state.users.forEach(element => {
+            if(element.fullname.indexOf(this.state.filter_table.fullname) > -1){
+                filter_data.push(element);
+            }
+        });
+    }
+    if (this.state.filter_table.position == ""){
+    }else{
+        let tempx = [];
+        
+        filter_data.forEach(element => {
+          
+            if(element.position.indexOf(this.state.filter_table.position) > -1){
+                tempx.push(element);
+            }
+        });
+        filter_data = tempx;
+    }
+    
+    this.setState({
+        show_users: filter_data
+    });
+  }
+
+  reset_filter(){
+    let temp = this.state.users;
+    this.setState({
+      show_users: temp,
+      filter_table: {
+        fullname: "",
+        position: ""
+      }
+    })
+  }
+  handleChange_fullname(e){
+    let xx= this.state.filter_table;
+    xx.fullname = e.target.value;
+    this.setState({
+        filter_table:xx
+    }); 
+  }
+  handleChange_pos(e){
+    let xx= this.state.filter_table;
+    xx.position = e.target.value;
+    this.setState({
+        filter_table:xx
+    }); 
+  }
   render() {
   return (
     <div>
@@ -47,69 +98,28 @@ export default class Verifier extends Component {
       <TopNavbar />
       <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
       <div className="verifier_cases_details_table">
-      <h2><u>{!this.state.show_streets && ("User Information Table")}</u></h2>
-      <h2><u>{this.state.show_streets && ("Streets UnVerified Violations Table")}</u></h2>
-        <div style={{ paddingBottom:"30px",paddingRight:"30px" }}>
-        {
-              this.state.show_streets && ( <Button
-                        variant="primary"
-                        style={{ height: "60%",float:"right"}}
-                        onClick={this.Show_user}
-                      >
-                        View Users
-      </Button>
-              )}
-              {
-              !this.state.show_streets && (
-      <Button
-                        variant="primary"
-                        style={{ height: "60%",float:"right"}}
-                        onClick={this.Show_street}
-                      >
-                        View Streets
-      </Button>
-              )}
-      </div>
-      <br />
+      <h2><u>User Information Table</u></h2>
+        
+       <br />
+       <div style={{display:"flex",flexDirection:"row", paddingRight:"50px"}}>
+            <div class="input-group mb-3"  style={{width:"300px",marginLeft:"10px"}}>
+                <span class="input-group-text" id="basic-addon1">Full name </span>
+                <input type="text" class="form-control" value={this.state.filter_table.fullname} onChange={this.handleChange_fullname} />
+            </div>
+            <div class="input-group mb-3"  style={{width:"300px",marginLeft:"10px"}}>
+                <span class="input-group-text" id="basic-addon1">Position </span>
+                <input type="text" class="form-control" value={this.state.filter_table.position} onChange={this.handleChange_pos} />
+            </div>
+            <button type="button" class="btn btn-primary mb-3"  onClick={this.apply_filter}  style={{width:"150px"}}>Filter </button>
+            <button type="button" class="btn btn-danger mb-3"  onClick={this.reset_filter}  style={{width:"150px"}}>Reset Filter </button>
+            
+       </div>
+       <br />
         <div class="row">
         
           <div class="verifier-table-responsive " style={{ paddingBottom:"15px",paddingRight:"25px" }}>
-            {
-              this.state.show_streets && (<table class="table table-striped table-hover table-bordered">
-              <thead>
-                <tr>
-                  <th style={{ fontFamily: "Verdana" }}>Street Name</th>
-                  <th style={{ fontFamily: "Verdana" }}>
-                    Count of Unverified Violations{" "}
-                  </th>
-                  <th style={{ fontFamily: "Verdana" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  this.state.data.map((x)=>(
-                    <tr>
-                    <td>{x.name}</td>
-                    <td>{x.count}</td>
-  
-                    <td>
-                      {" "}
-                      <Button
-                        variant="primary"
-                        style={{ height: "60%" }}
-                        onClick={() =>{  window.location.href ="/verifier/street/"+x.streetid;  }}
-                      >
-                        View Details
-                      </Button>
-                    </td>
-                  </tr>
-                  ))
-                }
-              </tbody>
-            </table>)
-            }
-            {
-              !this.state.show_streets && (<table class="table table-striped table-hover table-bordered">
+            
+            <table class="table table-striped table-hover table-bordered">
               <thead>
                 <tr>
                   <th style={{ fontFamily: "Verdana" }}>User ID</th>
@@ -122,7 +132,7 @@ export default class Verifier extends Component {
               </thead>
               <tbody>
                 {
-                  this.state.users.map((x)=>(
+                  this.state.show_users.map((x)=>(
                     <tr>
                     <td>{x.user_id}</td>
                     <td>{x.fullname}</td>
@@ -141,8 +151,8 @@ export default class Verifier extends Component {
                   ))
                 }
               </tbody>
-            </table>)
-            }
+            </table>
+            
           </div>
         </div>
       </div>

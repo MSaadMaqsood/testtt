@@ -8,23 +8,23 @@ import polyline
 import time
 
 
-# def db_connection():
-#     host = 'localhost'
-#     user = "root"
-#     password = ""
-#     database = 'elm'
-#     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
-#     return cnx
-
-
-
 def db_connection():
-    host = '67.205.163.34'
-    user = "sohail"
-    password = "sohail123"
-    database = 'elm1'
+    host = 'localhost'
+    user = "root"
+    password = ""
+    database = 'elm'
     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
     return cnx
+
+
+
+# def db_connection():
+#     host = '67.205.163.34'
+#     user = "sohail"
+#     password = "sohail123"
+#     database = 'elm1'
+#     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
+#     return cnx
 
 
 def get_map_api_():
@@ -566,7 +566,7 @@ def get_distance_btw_violation_by_distance_matrix_api(lat1, lng1, lat2, lng2):
 
 
 def retry_upload_dataset(dataset):
-    print(dataset)
+
     set_of_street_ids = set()
     set_of_street_ava_ids = set()
     set_of_street_un_ava_ids = set()
@@ -1174,8 +1174,8 @@ def retry_upload_dataset(dataset):
                     prev_point_two.append(temp)
 
             update_map_view(str(street['street_id']), str(prev_point_one), str(prev_point_two), str(total_violation))
-            if len(set_of_street_ava_ids) > 0:
-                update_street_status(set_of_street_ava_ids, 0)
+    if len(set_of_street_ava_ids) > 0:
+        update_street_status(set_of_street_ava_ids, 0)
 
     return list_unava_str
 

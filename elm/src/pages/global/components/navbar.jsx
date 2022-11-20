@@ -25,15 +25,7 @@ class TopNavbar extends Component{
                            <Form.Label htmlFor="inputPassword5">Eye</Form.Label>
                         </Navbar.Brand>
                         <Nav className="m-auto">
-                            <InputGroup className="mb-2">
-                                <Form.Control
-                                placeholder="Search resourses...."
-                                aria-label="Username"
-                                aria-describedby="basic-addon1"
-                                className='dashboard_navbar_search dashboard_navbar_search_width'
-                                            />
-                                <InputGroup.Text id="basic-addon1" className='dashboard_navbar_btn'><Search /></InputGroup.Text>
-                            </InputGroup>
+                            
                         </Nav>
                         <Nav  className="justify-content-end">
                             <PencilFill color="white" className="dashboard_navbar_icon" size={24}/>

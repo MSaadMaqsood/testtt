@@ -8,7 +8,7 @@ from flask import send_file
 from datetime import datetime, timedelta
 from pdfmaker02 import *
 from collections import Counter
-from upload_api_02 import *
+from upload_api_03 import *
 import cv2
 import base64
 
@@ -154,8 +154,8 @@ def violation_map_data():
     for a, b, c in cursor:
 
         for i in ast.literal_eval(b):
-            if i['end_latlng'] == '0,0':
-                temp_start = i['start_latlng'].split(',')
+            if i['ending'] == '0,0':
+                temp_start = i['starting'].split(',')
                 list_for_circle.append({"street_id": a,
                                         "lat": float(temp_start[0]),
                                         "lng": float(temp_start[1]), })
@@ -163,8 +163,8 @@ def violation_map_data():
                 used.append({"street_id": a, 'poly': i['polylines']})
 
         for i in ast.literal_eval(c):
-            if i['end_latlng'] == '0,0':
-                temp_start = i['start_latlng'].split(',')
+            if i['ending'] == '0,0':
+                temp_start = i['starting'].split(',')
                 list_for_circle.append({"street_id": a,
                                         "lat": float(temp_start[0]),
                                         "lng": float(temp_start[1]), })
@@ -189,8 +189,8 @@ def violation_tree_map_data():
     for a, b, c in cursor:
 
         for i in ast.literal_eval(b):
-            if i['end_latlng'] == '0,0':
-                temp_start = i['start_latlng'].split(',')
+            if i['ending'] == '0,0':
+                temp_start = i['starting'].split(',')
                 list_for_circle.append({"street_id": a,
                                         "lat": float(temp_start[0]),
                                         "lng": float(temp_start[1]), })
@@ -198,8 +198,8 @@ def violation_tree_map_data():
                 used.append({"street_id": a, 'poly': i['polylines']})
 
         for i in ast.literal_eval(c):
-            if i['end_latlng'] == '0,0':
-                temp_start = i['start_latlng'].split(',')
+            if i['ending'] == '0,0':
+                temp_start = i['starting'].split(',')
                 list_for_circle.append({"street_id": a,
                                         "lat": float(temp_start[0]),
                                         "lng": float(temp_start[1]), })
@@ -553,21 +553,12 @@ def get_map_api():
 
 
 
-@app.route('/get_vio_for_verify')
-def get_vio_for_verify():
-    data = []
+@app.route('/get_userlog_list_all')
+def get_userlog_list_all():
+
     users = []
     cnx = db_connection()
-    cursor = cnx.cursor()
-    query = ("SELECT `street`.`streetid`,`street`.`streetname`, COUNT(1) FROM `street` INNER JOIN `violation` ON `violation`.`street_id` = `street`.`streetid` WHERE `violation`.`correct` = -1 GROUP BY `street`.`streetid`;")
-    cursor.execute(query)
-    for a, b, c in cursor:
-        data.append({
-            "streetid":a,
-            "name": b,
-            "count": c
-        })
-    cursor.close()
+
     # ###################
     cursor01 = cnx.cursor()
     query01 = (
@@ -582,7 +573,7 @@ def get_vio_for_verify():
     cursor01.close()
     cnx.close()
 
-    return {"streets": data, "users": users}
+    return {"users": users}
 
 
 
@@ -652,25 +643,22 @@ def update_violation_for_verify():
     cnx = db_connection()
 
     cursor_select = cnx.cursor()
-    query2 = ("SELECT `street_id`, `lat`, `long` FROM `violation` WHERE `violation_id`="+str(request_data['violation_id'])+";")
+    query2 = ("SELECT `street_id`,`violation_type_id`, `lat`, `long`, `violation_date` FROM `violation` WHERE `violation_id`="+str(request_data['violation_id'])+";")
     cursor_select.execute(query2)
     x = []
-    for a, b, c in cursor_select:
+    udate = ""
+    for a, b, c, d, e in cursor_select:
         x = [{
                 "street_id": a,
-                "street_name": "",
-                "violation": [{  "lat": float(b),
-                                "long": float(c)}],
-                'side01': [],
-                'side02': [],
-                'total_violations': 0,
-                'ref': "",
-                'date': ''
+                "violation_type_id":b,
+                "lat": float(c),
+                "lng": float(d),
         }]
-    x = retry_upload_dataset(x)
+        udate = e.strftime('%Y-%m-%d')
+    x = main_function(x, udate)
     while len(x) > 0:
         time.sleep(60)
-        x = retry_upload_dataset(x)
+        x = main_function(x)
 
     cursor1 = cnx.cursor()
     query1 = ("UPDATE `violation` SET `correct`='"+str(request_data['cor'])+"', `violation_type_id`='"+str(request_data['updated_vio_id'])+"' WHERE `violation_id`="+str(request_data['violation_id'])+";")
@@ -704,15 +692,15 @@ def get_single_violation_Verify(violation_id):
             "violation_name": "",
             "lat": 0,
             "lng": 0,
-
+            "prev_status": -1
 
         }
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-            "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname, violation.lat, violation.long, violation.violation_status FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.violation_id="+violation_id+";")
+            "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname, violation.lat, violation.long, violation.violation_status, violation.correct FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.violation_id="+violation_id+";")
     cursor.execute(query)
-    for a, b, c, d, e, f, g, h, i, j, k in cursor:
+    for a, b, c, d, e, f, g, h, i, j, k, l in cursor:
         st = "Not Reported"
         if k != "0":
             st = "Reported"
@@ -728,7 +716,8 @@ def get_single_violation_Verify(violation_id):
             "violation_name": h,
             "lat": float(i),
             "lng": float(j),
-
+            "status": st,
+            "prev_status": l
         }
     cursor.close()
     cnx.close()

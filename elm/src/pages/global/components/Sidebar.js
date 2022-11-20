@@ -169,7 +169,12 @@ export default function MiniDrawer() {
             </ListItemIcon>
             <ListItemText primary="Streets"   onClick={() =>{  window.location.href ="/violation/1";  }}/>
           </ListItem>
-
+          <ListItem button>
+            <ListItemIcon onClick={() =>{  window.location.href ="/allviolations";  }}>
+            <DescriptionIcon   />
+            </ListItemIcon>
+            <ListItemText primary="All Violations" onClick={() =>{  window.location.href ="/allviolations";  }}/>
+          </ListItem>
           <ListItem button>
             <ListItemIcon onClick={() =>{  window.location.href ="/verifier";  }}>
               
@@ -183,12 +188,7 @@ export default function MiniDrawer() {
             </ListItemIcon>
             <ListItemText primary="Map API"  onClick={() =>{  window.location.href ="/map_api";  }}/>
           </ListItem> */}
-          <ListItem button>
-            <ListItemIcon onClick={() =>{  window.location.href ="/allviolations";  }}>
-            <DescriptionIcon   />
-            </ListItemIcon>
-            <ListItemText primary="All Violations" onClick={() =>{  window.location.href ="/allviolations";  }}/>
-          </ListItem>
+          
         </List>
       </Drawer>
       <main className={classes.content}>

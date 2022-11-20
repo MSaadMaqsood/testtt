@@ -10,7 +10,6 @@ import ModalMap from "../violation/ModalMap";
 import { Pages } from "@material-ui/icons";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import Moment from 'react-moment';
 
 export default class AllViolations extends Component {
   constructor(props) {
@@ -22,7 +21,10 @@ export default class AllViolations extends Component {
         show_data: [],
         show_pages: 0,
         currentPage:1,
+
         vio_type_list:[{"name":"000000"}],
+        show_uploading: false,
+
         show_model: false,
         model_show_violation_info: {
             violation_id: 1,
@@ -54,19 +56,50 @@ export default class AllViolations extends Component {
     this.handleChange_date = this.handleChange_date.bind(this);
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
+    this.update_violation_cor = this.update_violation_cor.bind(this);
+    this.update_violation_incor = this.update_violation_incor.bind(this);
+    this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.get_all_violations();
   }
   showModal = (para) => (e) => {
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server +  "/get_single_violation/" + para)
+      .get(this.props.server +  "/get_single_violation_Verify/" + para)
       .then(function (response) {
         com.setState({
           model_show_violation_info: response.data,
           show_model: true,
         });
       });
+  };
+  update_violation_cor() {
+    const com = this;
+    const server = this.props.server;
+   const axios = require('axios').default;
+   this.setState({show_uploading:true});
+    axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'prev_vio_id': this.state.model_show_violation_info.violation_type_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id, 'cor':1})
+    .then(function (response) {
+      com.setState({show_uploading:false});
+      alert("Violation updated! Refresh Page");  
+    })
+    
+  }
+  update_violation_incor() {
+    const com = this;
+    const server = this.props.server;
+   const axios = require('axios').default;
+    axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'prev_vio_id': this.state.model_show_violation_info.violation_type_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id, 'cor':0})
+    .then(function (response) {
+      alert("Violation updated! Refresh Page");  
+    })
+    
+  }
+  change_violation_type_vio = (e) => {
+    let temp = this.state.model_show_violation_info;
+    temp.new_violation_type_id = e.target.value;
+    this.setState({model_show_violation_info : temp}); 
+    
   };
   hideModal = () => {
     this.setState({ show_model: false });
@@ -161,7 +194,7 @@ this.setState({
             filter_date:""
           }
     })
-  }
+  } 
   change_violation_type = (e) => {
     let xx= this.state.filter_table;
     xx.violation_type = parseInt(e.target.value);
@@ -309,20 +342,45 @@ this.setState({
             <Modal.Body>
               <Form>
               <table className="model_table_">
-              <tr className="model_table_row">
+                  <tr className="model_table_row">
                     <td className="model_table_data">
-                <Form.Group className="mb-3">
+                    <Form.Group className="mb-3">
                   <Form.Label>Violation Type</Form.Label>
                   <Form.Control
-                    placeholder={
-                      this.state.model_show_violation_info.violation_name
-                    }
+                    placeholder={this.state.model_show_violation_info.violation_name}
                     disabled
                   />
                 </Form.Group>
-                </td>
-                <td>
-                <Form.Group className="mb-3">
+                    </td>
+                    {this.state.model_show_violation_info.prev_status == -1 && (<td>
+                    <Form.Group className="mb-3">
+              <Form.Label>Change to</Form.Label>
+                 <Form.Select 
+                  class="violation_select"
+                  aria-label="Default select example"
+                  onChange={this.change_violation_type_vio}
+                  
+                >
+                  <option value={this.state.model_show_violation_info.violation_type_id}>{this.state.model_show_violation_info.violation_name}</option>
+                  {
+                    this.state.vio_type_list.map((h)=>(
+                      <option value={h.vio_id}>{h.name}</option>
+                    ))
+                  } 
+                </Form.Select>
+                
+               
+                </Form.Group>
+                    </td>)}
+                    
+                  </tr>
+                </table>
+              
+                
+                <table className="model_table_">
+                  <tr className="model_table_row">
+                    <td style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
                     placeholder={
@@ -333,11 +391,9 @@ this.setState({
                     disabled
                   />
                 </Form.Group>
-                </td>
-                </tr>
-                  <tr className="model_table_row">
-                    <td className="model_table_data">
-                    <Form.Group className="mb-4">
+                    </td>
+                    <td  style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Risk</Form.Label>
                   <Form.Control
                     placeholder={this.state.model_show_violation_info.risk}
@@ -345,8 +401,8 @@ this.setState({
                   />
                 </Form.Group>
                     </td>
-                    <td>
-                    <Form.Group className="mb-4">
+                    <td   style={{width:"33%"}}>
+                    <Form.Group className="mb-3">
                   <Form.Label>Accurate</Form.Label>
                   <Form.Control
                     placeholder={this.state.model_show_violation_info.accurate}
@@ -358,8 +414,24 @@ this.setState({
                 </table>
                 
               </Form>
+              <div
+              style={{ marginLeft: "40%", marginTop: "10px" }}
+              >
+                <label>{this.state.show_uploading && "Updating Wait......"}</label>
+              </div>
+              {this.state.model_show_violation_info.prev_status == -1 && (<div
+                className="verifier_action_buttons"
+                style={{ marginLeft: "35%", marginTop: "10px" }}
+              >
+                <button type="button" class="btnn" onClick={this.update_violation_cor}>
+                  Correct
+                </button>
+                <button type="button" class="btnn" onClick={this.update_violation_incor}>
+                  Incorrect
+                </button>
+              </div>)}
               
-              <div className="Modal_violation">
+              <div className="Modal_verifier">
                 <img
                   src={
                     this.props.server +
@@ -407,9 +479,7 @@ this.setState({
               <br />
             </Modal.Body>
 
-            <Modal.Footer  onClick={this.hideModal}>
-              
-            </Modal.Footer>
+            <Modal.Footer onClick={this.hideModal}></Modal.Footer>
           </Modal>
 
           {/* Model Box Finsihs */}
