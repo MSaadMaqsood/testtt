@@ -23,23 +23,28 @@ export default class AllViolations extends Component {
         currentPage:1,
 
         vio_type_list:[{"name":"000000"}],
+        street_list:[],
         show_uploading: false,
 
         show_model: false,
         model_show_violation_info: {
-            violation_id: 1,
-            violation_type_id: 2,
-            new_violation_type_id: 2,
-            accurate: 90,
-            risk: 40,
-            display_img: "0",
-            violation_date: "JAn 00, 0000",
-            violation_time: "00:00",
-            violation_name: "Rubble",
-            lat: 0,
-            lng: 0,
-            status: "Not Reported",
-          },
+          "violation_id": 0,
+          "violation_type_id": 0,
+          "violation_name": "",
+          "street_id": 0,
+          "street_name": "",
+          "accurate": 0,
+          "risk": 0,
+          "display_img": "",
+          "violation_date": "",
+          "violation_time": "",
+          "lat": 0,
+          "lng": 0,
+          "correct": 0,
+          "current_status": "Not Reported",
+          "new_violation_type_id": 0,
+          "new_street_id": 0,
+      },
           filter_table: {
             violation_type: -5,
             device_id: "",
@@ -59,6 +64,7 @@ export default class AllViolations extends Component {
     this.update_violation_cor = this.update_violation_cor.bind(this);
     this.update_violation_incor = this.update_violation_incor.bind(this);
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
+    this.change_street_vio = this.change_street_vio.bind(this);
     this.get_all_violations();
   }
   showModal = (para) => (e) => {
@@ -75,29 +81,51 @@ export default class AllViolations extends Component {
   };
   update_violation_cor() {
     const com = this;
-    const server = this.props.server;
-   const axios = require('axios').default;
-   this.setState({show_uploading:true});
-    axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'prev_vio_id': this.state.model_show_violation_info.violation_type_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id, 'cor':1})
-    .then(function (response) {
-      com.setState({show_uploading:false});
-      alert("Violation updated! Refresh Page");  
-    })
-    
+    if (this.state.model_show_violation_info.street_id == 0 && this.state.model_show_violation_info.new_street_id ==0){
+      alert("To make it Correct you need to Select Street!!!!");
+    }else if(this.state.model_show_violation_info.violation_type_id == 0 && this.state.model_show_violation_info.new_violation_type_id==0){
+      alert("To make it Correct you need to Select Violation Type!!!!");
+    }
+    else{
+        const server = this.props.server;
+        const axios = require('axios').default;
+
+        this.setState({show_uploading:true});
+          axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id,'updated_street_id': this.state.model_show_violation_info.new_street_id, 'cor':1})
+          .then(function (response) {
+            com.setState({show_uploading:false});
+            if(response.data.result === 1){
+              alert("Violation updated! Refresh Page");
+            }else if(response.data.result === 0){
+              alert("Violation updated Failed! Refresh Page");
+            }
+              
+          })
+  }
   }
   update_violation_incor() {
     const com = this;
     const server = this.props.server;
    const axios = require('axios').default;
-    axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'prev_vio_id': this.state.model_show_violation_info.violation_type_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id, 'cor':0})
+    axios.post(this.props.server+"/update_violation_for_verify", {'user_id': sessionStorage.getItem("user_id"), 'violation_id': this.state.model_show_violation_info.violation_id, 'updated_vio_id': this.state.model_show_violation_info.new_violation_type_id,'updated_street_id': this.state.model_show_violation_info.new_street_id, 'cor':0})
     .then(function (response) {
-      alert("Violation updated! Refresh Page");  
+      if(response.data.result === 1){
+        alert("Violation updated! Refresh Page");
+      }else if(response.data.result === 0){
+        alert("Violation updated Failed! Refresh Page");
+      }  
     })
     
   }
   change_violation_type_vio = (e) => {
     let temp = this.state.model_show_violation_info;
     temp.new_violation_type_id = e.target.value;
+    this.setState({model_show_violation_info : temp}); 
+    
+  };
+  change_street_vio = (e) => {
+    let temp = this.state.model_show_violation_info;
+    temp.new_street_id = e.target.value;
     this.setState({model_show_violation_info : temp}); 
     
   };
@@ -117,7 +145,8 @@ export default class AllViolations extends Component {
         all_pages:  response.data.pages,
         show_data: response.data.myData,
         show_pages: response.data.pages,
-        vio_type_list: response.data.vio
+        vio_type_list: response.data.vio,
+        street_list: response.data.street_list
       });
       
     });
@@ -239,6 +268,7 @@ this.setState({
                   
             <td>{x.violation_id}</td>
             <td>{x.violation_name}</td>
+            <td>{x.street_name}</td>
             <td>{x.accurate}</td>
             <td>{x.risk}</td>
             <td>{x.violation_date} at {x.violation_time}</td>
@@ -306,6 +336,7 @@ this.setState({
                   
                   <th style={{ fontFamily: "Verdana" }}>Violation ID </th>
                   <th style={{ fontFamily: "Verdana" }}>Type </th>
+                  <th style={{ fontFamily: "Verdana" }}>Street </th>
                   <th style={{ fontFamily: "Verdana" }}>Accuracy</th>
                   <th style={{ fontFamily: "Verdana" }}>Risk</th>
                   <th style={{ fontFamily: "Verdana" }}>Date && Time</th>
@@ -343,7 +374,7 @@ this.setState({
               <Form>
               <table className="model_table_">
                   <tr className="model_table_row">
-                    <td className="model_table_data">
+                    <td style={{width:"49%",paddingRight:"20px"}}>
                     <Form.Group className="mb-3">
                   <Form.Label>Violation Type</Form.Label>
                   <Form.Control
@@ -352,7 +383,7 @@ this.setState({
                   />
                 </Form.Group>
                     </td>
-                    {this.state.model_show_violation_info.prev_status == -1 && (<td>
+                    {this.state.model_show_violation_info.correct == -1 && (<td style={{width:"49%",paddingRight:"20px"}}>
                     <Form.Group className="mb-3">
               <Form.Label>Change to</Form.Label>
                  <Form.Select 
@@ -374,12 +405,66 @@ this.setState({
                     </td>)}
                     
                   </tr>
+                  <tr className="model_table_row">
+                    <td  style={{width:"49%",paddingRight:"20px"}}>
+                    <Form.Group className="mb-3">
+                  <Form.Label>Street</Form.Label>
+                  <Form.Control
+                    placeholder={this.state.model_show_violation_info.street_name}
+                    disabled
+                  />
+                </Form.Group>
+                    </td>
+                    {this.state.model_show_violation_info.correct == -1 && (<td style={{width:"49%",paddingRight:"20px"}}>
+                    <Form.Group className="mb-3">
+              <Form.Label>Change to</Form.Label>
+                 <Form.Select 
+                  class="violation_select"
+                  aria-label="Default select example"
+                  onChange={this.change_street_vio}
+                  
+                >
+                  <option value={this.state.model_show_violation_info.street_id}>{this.state.model_show_violation_info.street_name}</option>
+                  {
+                    this.state.street_list.map((h)=>(
+                      <option value={h.street_id}>{h.street_name}</option>
+                    ))
+                  } 
+                </Form.Select>
+                
+               
+                </Form.Group>
+                    </td>)}
+                    
+                  </tr>
                 </table>
               
                 
                 <table className="model_table_">
                   <tr className="model_table_row">
-                    <td style={{width:"33%"}}>
+                    
+                    <td  style={{width:"49%",paddingRight:"20px"}}>
+                    <Form.Group className="mb-3">
+                  <Form.Label>Risk</Form.Label>
+                  <Form.Control
+                    placeholder={this.state.model_show_violation_info.risk}
+                    disabled
+                  />
+                </Form.Group>
+                    </td>
+                    <td   style={{width:"49%",paddingRight:"20px"}}>
+                    <Form.Group className="mb-3">
+                  <Form.Label>Accurate</Form.Label>
+                  <Form.Control
+                    placeholder={this.state.model_show_violation_info.accurate}
+                    disabled
+                  />
+                </Form.Group>
+                    </td>
+
+                  </tr>
+                  <tr>
+                  <td style={{width:"49%",paddingRight:"20px"}}>
                     <Form.Group className="mb-3">
                   <Form.Label>Date & Time</Form.Label>
                   <Form.Control
@@ -392,20 +477,13 @@ this.setState({
                   />
                 </Form.Group>
                     </td>
-                    <td  style={{width:"33%"}}>
+                    <td style={{width:"49%",paddingRight:"20px"}}>
                     <Form.Group className="mb-3">
-                  <Form.Label>Risk</Form.Label>
+                  <Form.Label>Report Status</Form.Label>
                   <Form.Control
-                    placeholder={this.state.model_show_violation_info.risk}
-                    disabled
-                  />
-                </Form.Group>
-                    </td>
-                    <td   style={{width:"33%"}}>
-                    <Form.Group className="mb-3">
-                  <Form.Label>Accurate</Form.Label>
-                  <Form.Control
-                    placeholder={this.state.model_show_violation_info.accurate}
+                    placeholder={
+                      this.state.model_show_violation_info.current_status
+                    }
                     disabled
                   />
                 </Form.Group>
@@ -419,7 +497,7 @@ this.setState({
               >
                 <label>{this.state.show_uploading && "Updating Wait......"}</label>
               </div>
-              {this.state.model_show_violation_info.prev_status == -1 && (<div
+              {this.state.model_show_violation_info.correct === -1 && (<div
                 className="verifier_action_buttons"
                 style={{ marginLeft: "35%", marginTop: "10px" }}
               >

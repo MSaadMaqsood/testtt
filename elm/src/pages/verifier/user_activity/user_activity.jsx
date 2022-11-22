@@ -82,6 +82,8 @@ export default class UserActivity extends Component {
                   <th style={{ fontFamily: "Verdana" }}>Violation ID </th>
                   <th style={{ fontFamily: "Verdana" }}>Prev Violation Type</th>
                   <th style={{ fontFamily: "Verdana" }}>Updated Violation Type</th>
+                  <th style={{ fontFamily: "Verdana" }}>Prev Street</th>
+                  <th style={{ fontFamily: "Verdana" }}>Updated Street</th>
                   <th style={{ fontFamily: "Verdana" }}>Correct/Incorrect</th>
                   <th style={{ fontFamily: "Verdana" }}>Entry Date</th>
                   <th style={{ fontFamily: "Verdana" }}>View</th>
@@ -95,6 +97,8 @@ export default class UserActivity extends Component {
                   <td>{x.violation_id}</td>
                   <td>{x.prev_vio}</td>
                   <td>{x.updated_vio}</td>
+                  <td>{x.prev_street}</td>
+                  <td>{x.updated_street}</td>
                   <td>{x.cor}</td>
                   <td>{x.entry_date}</td>
                   <td>

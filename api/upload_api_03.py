@@ -12,7 +12,6 @@ from flask import request
 from flask_cors import CORS
 from basic_func import *
 
-
 def side_check(lat1, lng1, lat2, lng2,test = 0):
     url1 = "https://maps.googleapis.com/maps/api/directions/json?origin=" + str(lat1) + "," + str(lng1) + "&destination=" + str(lat2) + "," + str(lng2) + "&key=" + api_text
     response1 = requests.request("GET", url1, headers={}, data={})
@@ -408,6 +407,7 @@ def update_side(temp,prev):
     return prev
 
 
+
 def main_function(list_of_all_violations, date_of_violation):
     list_of_ava_violations = []
     list_of_unava_violations = []
@@ -551,8 +551,6 @@ def main_function(list_of_all_violations, date_of_violation):
                                      {'min': side2_ref1, 'max': side2_ref2}, side1_, side2_, len(temp))
 
 
-    if len(list_of_ava_violations) > 0:
-        insert_violations_Street(list_of_ava_violations)
     if len(set_of_street_ava_ids) > 0:
         update_street_status(set_of_street_ava_ids, 0)
 

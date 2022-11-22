@@ -11,6 +11,7 @@ from collections import Counter
 from upload_api_03 import *
 import cv2
 import base64
+from db import *
 
 
 app = Flask(__name__)
@@ -25,23 +26,17 @@ def convertDateTimetoImageName(datetime):
     return datetime
 
 
+
+
+
 # def db_connection():
-#     host = 'localhost'
-#     user = "root"
-#     password = ""
-#     database = 'elm'
+#     host = '67.205.163.34'
+#     user = "sohail"
+#     password = "sohail123"
+#     database = 'elm1'
 #     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
 #     return cnx
-
-
-def db_connection():
-    host = '67.205.163.34'
-    user = "sohail"
-    password = "sohail123"
-    database = 'elm1'
-    cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
-    return cnx
-
+#
 
 
 @app.route('/get_map_api_')
@@ -363,6 +358,20 @@ def get_street_list(street_id):
     return data, street_name
 
 
+def get_street_list():
+    data = []
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = (
+        "SELECT `streetid`, `streetname` FROM `street` ORDER BY `streetid` ASC;")
+    cursor.execute(query)
+
+    for a, b in cursor:
+        data.append({"street_id": a, "street_name": b})
+    cursor.close()
+    cnx.close()
+    return data
+
 def get_tree_count(street_id, st_date= ""):
     street_count = 0
     cnx = db_connection()
@@ -635,46 +644,94 @@ def get_street_vio_Verify(street_id):
 
 @app.route('/update_violation_for_verify', methods = ['POST'])
 def update_violation_for_verify():
-    # user_id, violation_id, prev_vio_id, updated_vio_id, cor
+    # user_id, violation_id, updated_vio_id, updated_street_id, cor
 
     request_data = request.get_json()
+
+    prev_violation_type_id = 0
+    prev_street_id = 0
+
+    updated_violation_type_id = int(request_data['updated_vio_id'])
+    updated_street_id = int(request_data['updated_street_id'])
+
+    user_id = int(request_data['user_id'])
+    violation_id = int(request_data['violation_id'])
+
+    correct = int(request_data['cor'])
+
+
     now = datetime.today()
     today_date = now.strftime("%Y-%m-%d")
-    cnx = db_connection()
+    try:
+        cnx = db_connection()
 
-    cursor_select = cnx.cursor()
-    query2 = ("SELECT `street_id`,`violation_type_id`, `lat`, `long`, `violation_date` FROM `violation` WHERE `violation_id`="+str(request_data['violation_id'])+";")
-    cursor_select.execute(query2)
-    x = []
-    udate = ""
-    for a, b, c, d, e in cursor_select:
-        x = [{
-                "street_id": a,
-                "violation_type_id":b,
-                "lat": float(c),
-                "lng": float(d),
-        }]
-        udate = e.strftime('%Y-%m-%d')
-    x = main_function(x, udate)
-    while len(x) > 0:
-        time.sleep(60)
-        x = main_function(x)
+        cursor_select = cnx.cursor()
+        query2 = ("SELECT `street_id`,`violation_type_id`, `lat`, `long`, `violation_date` FROM `violation` WHERE `violation_id`="+str(violation_id)+";")
+        cursor_select.execute(query2)
+        x = []
+        udate = ""
 
-    cursor1 = cnx.cursor()
-    query1 = ("UPDATE `violation` SET `correct`='"+str(request_data['cor'])+"', `violation_type_id`='"+str(request_data['updated_vio_id'])+"' WHERE `violation_id`="+str(request_data['violation_id'])+";")
-    cursor1.execute(query1)
-    cnx.commit()
-    cursor1.close()
+        for a, b, c, d, e in cursor_select:
+            prev_street_id = a
+            prev_violation_type_id = b
+            st_id = a
+            if updated_street_id != 0:
+                st_id = updated_street_id
+            else:
+                updated_street_id = a
+            if updated_violation_type_id == 0:
+                updated_violation_type_id = b
+            x = [{
+                    "street_id": st_id,
+                    "violation_type_id":b,
+                    "lat": float(c),
+                    "long": float(d),
+            }]
+            udate = e.strftime('%Y-%m-%d')
 
-    cursor = cnx.cursor()
-    query = ("INSERT INTO `user_log`(`user_id`, `violation_id`, `prev_violation`, `updated_violation`, `correct_incorrect`, `entry_date`) VALUES ('"+str(request_data['user_id'])+"','"+str(request_data['violation_id'])+"','"+str(request_data['prev_vio_id'])+"','"+str(request_data['updated_vio_id'])+"','"+str(request_data['cor'])+"','"+today_date+"')")
-    cursor.execute(query)
-    cnx.commit()
-    cursor.close()
+        if correct == 1:
+            x = main_function(x, udate)
+            while len(x) > 0:
+                time.sleep(60)
+                x = main_function(x)
 
-    cnx.close()
+        cursor1 = cnx.cursor()
+        query1 = ("UPDATE `violation` SET `correct`='"+str(correct)+"', `violation_type_id`='"+str(updated_violation_type_id)+"', `street_id`='"+str(updated_street_id)+"' WHERE `violation_id`="+str(violation_id)+";")
+        cursor1.execute(query1)
+        cnx.commit()
+        cursor1.close()
 
-    return jsonify(True)
+        cursor = cnx.cursor()
+        if updated_violation_type_id != prev_violation_type_id and updated_street_id != prev_street_id:
+            query = ("INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('"+str(user_id)+"','"+str(violation_id)+"','"+str(prev_violation_type_id)+"','"+str(updated_violation_type_id)+"','"+str(prev_street_id)+"','"+str(updated_street_id)+"','"+str(correct)+"','"+today_date+"')")
+        elif updated_violation_type_id != prev_violation_type_id and updated_street_id == prev_street_id:
+            query = (
+                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                    user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
+                    updated_violation_type_id) + "','" + str(prev_street_id) + "','" + str(0) + "','" + str(
+                    correct) + "','" + today_date + "')")
+        elif updated_violation_type_id == prev_violation_type_id and updated_street_id != prev_street_id:
+            query = (
+                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                    user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
+                    0) + "','" + str(prev_street_id) + "','" + str(updated_street_id) + "','" + str(
+                    correct) + "','" + today_date + "')")
+        else:
+            query = (
+                    "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
+                0) + "','" + str(prev_street_id) + "','" + str(0) + "','" + str(
+                correct) + "','" + today_date + "')")
+        cursor.execute(query)
+        cnx.commit()
+        cursor.close()
+
+        cnx.close()
+
+        return {'result': 1}
+    except Exception as e:
+        print(e)
+        return {'result': 0}
 
 
 @app.route('/get_single_violation_Verify/<violation_id>')
@@ -683,42 +740,52 @@ def get_single_violation_Verify(violation_id):
     violation_table_data = {
             "violation_id": 0,
             "violation_type_id": 0,
-            "new_violation_type_id":0,
+            "violation_name": "",
+            "street_id": 0,
+            "street_name": "",
             "accurate": 0,
             "risk": 0,
-            "display_img": "0",
-            "violation_date": "JAn 00, 0000",
-            "violation_time": "00:00",
-            "violation_name": "",
+            "display_img": "",
+            "violation_date": "",
+            "violation_time": "",
             "lat": 0,
             "lng": 0,
-            "prev_status": -1
-
+            "correct": -1,
+            "current_status": "Not Reported",
+            "new_violation_type_id": 0,
+            "new_street_id": 0,
         }
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-            "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname, violation.lat, violation.long, violation.violation_status, violation.correct FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.violation_id="+violation_id+";")
+            "SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation.lat, violation.long, violation.correct, violation.action_taken FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.violation_id="+str(violation_id)+";")
     cursor.execute(query)
-    for a, b, c, d, e, f, g, h, i, j, k, l in cursor:
-        st = "Not Reported"
-        if k != "0":
-            st = "Reported"
+    for a, b, c, d, e, f, g, h, i, j, k, l, m, n in cursor:
+        cs = "Not Reported"
+        if n == 1:
+            cs = "Reported"
+
         violation_table_data={
             "violation_id": a,
             "violation_type_id": b,
-            "new_violation_type_id": b,
-            "accurate": c,
-            "risk": d,
-            "display_img": e,
-            "violation_date": f.strftime('%b %d, %Y'),
-            "violation_time": g.strftime('%H:%M'),
-            "violation_name": h,
-            "lat": float(i),
-            "lng": float(j),
-            "status": st,
-            "prev_status": l
+            "violation_name": c,
+            "street_id": d,
+            "street_name": e,
+            "accurate": f,
+            "risk": g,
+            "display_img": h,
+            "violation_date": i.strftime('%b %d, %Y'),
+            "violation_time": j.strftime('%H:%M'),
+            "lat": float(k),
+            "lng": float(l),
+            "correct": m,
+            "current_status": cs,
+
+            "new_violation_type_id": 0,
+            "new_street_id": 0,
+
         }
+        print(m)
     cursor.close()
     cnx.close()
     return violation_table_data
@@ -729,20 +796,29 @@ def get_user_activity(userid):
     data = []
     cnx = db_connection()
     cursor = cnx.cursor()
-    query = ("SELECT `log_id`, `violation_id`,m1.violationname, m2.violationname, `correct_incorrect`, `entry_date` FROM `user_log` INNER JOIN `violation_type` AS m1 ON m1.`violationtypeid` = `user_log`.`prev_violation` INNER JOIN `violation_type` AS m2 ON m2.`violationtypeid` = `user_log`.`updated_violation` WHERE `user_id` = "+str(userid)+" Order BY log_id DESC;")
+    query = ("SELECT `log_id`, `violation_id`, m1.violationname, m2.violationname, s1.streetname, s2.streetname, `correct_incorrect`, `entry_date` FROM `user_log` INNER JOIN `violation_type` AS m1 ON m1.`violationtypeid` = `user_log`.`prev_violation` INNER JOIN `violation_type` AS m2 ON m2.`violationtypeid` = `user_log`.`updated_violation` INNER JOIN `street` AS s1 ON s1.`streetid` = `user_log`.`prev_street` INNER JOIN `street` AS s2 ON s2.`streetid` = `user_log`.`updated_street` WHERE `user_id` = "+str(userid)+" Order BY log_id DESC;")
     cursor.execute(query)
-    for a, b, c, d, e, f in cursor:
+    for a, b, c, d, e, f, g, h in cursor:
         cor = "Correct"
-        if e == 0:
+        if g == 0:
             cor = "Incorrect"
-
+        if c == 'None':
+            c = '-'
+        if d == 'None':
+            d = '-'
+        if e == 'None':
+            e = '-'
+        if f == 'None':
+            f = '-'
         data.append({
             "log_id": a,
             "violation_id": b,
             "prev_vio": c,
             "updated_vio": d,
+            "prev_street": e,
+            "updated_street": f,
             "cor": cor,
-            "entry_date": f
+            "entry_date": h
         })
     cursor.close()
     cnx.close()
@@ -756,28 +832,30 @@ def get_all_violation():
 
     cnx = db_connection()
     cursor = cnx.cursor()
-    query = ("SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE 1 ORDER BY violation.violation_id DESC;")
-
+    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.violation_date, violation.violation_time, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE 1 ORDER BY violation.violation_id DESC;")
     cursor.execute(query)
 
-    for a, b, c, d, e, f, g, h, i, j in cursor:
+    for a, b, c, d, e, f, g, h, i, j, k in cursor:
         str = "Correct"
-        if i == 0:
+        if j == 0:
             str = "Incorrect"
-        elif i == -1:
+        elif j == -1:
             str = "Pending"
         violation_table_data.append({
             "violation_id": a,
             "violation_type_id": b,
-            "accurate": c,
-            "risk": d,
-            "display_img": e,
-            "violation_date": f.strftime('%b %d, %Y'),
-            "violation_date_format": f.strftime('%Y-%m-%d'),
-            "violation_time": g.strftime('%H:%M'),
-            "violation_name": h,
+            "violation_name": c,
+            "streetid": d,
+            "street_name": e,
+
+            "accurate": f,
+            "risk": g,
+            "violation_date": h.strftime('%b %d, %Y'),
+            "violation_date_format": h.strftime('%Y-%m-%d'),
+            "violation_time": i.strftime('%H:%M'),
+
             "cor": str,
-            "dev_id": j
+            "dev_id": k
         })
 
     pages = math.floor(len(violation_table_data) / 10)
@@ -788,7 +866,7 @@ def get_all_violation():
     cnx.close()
     vv = get_vio_for_verify()
 
-    return {"myData": violation_table_data, "pages": pages, "vio": vv}
+    return {"myData": violation_table_data, "pages": pages, "vio": vv, "street_list": get_street_list()}
 
 
 if __name__ == '__main__':
