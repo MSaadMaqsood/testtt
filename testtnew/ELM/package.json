@@ -1,0 +1,62 @@
+{
+  "name": "elm",
+  "version": "0.1.0",
+  "homepage": "http://elm.mtsfashiontrading.com",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@mui/icons-material": "^5.10.6",
+    "@mui/material": "^5.10.8",
+    "@react-google-maps/api": "^2.13.1",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.27.2",
+    "bootstrap": "^5.2.2",
+    "classnames": "^2.3.2",
+    "google-maps-react": "^2.0.6",
+    "jquery": "^3.6.1",
+    "material-ui-search-bar": "^1.0.0",
+    "moment": "^2.29.4",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
+    "react-bootstrap-icons": "^1.9.1",
+    "react-bootstrap-sidebar-menu": "^2.0.3",
+    "react-collapsible": "^2.10.0",
+    "react-dom": "^18.2.0",
+    "react-modal": "^3.15.1",
+    "react-model": "^4.2.1",
+    "react-moment": "^1.1.2",
+    "react-paginate": "^8.1.3",
+    "react-router-dom": "^6.4.2",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

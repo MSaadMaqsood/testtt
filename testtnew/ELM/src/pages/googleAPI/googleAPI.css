@@ -1,0 +1,76 @@
+#back {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #010310 0%, #15035b 100%);
+    height: 100vh;
+}
+
+#api .container #api-row #api-column #api-box {
+    margin-top: 100px;
+    max-width: 600px;
+    height: 450px;
+    border: 1px solid #9c9c9c;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+#api .container #api-row #api-column #api-box #api-form {
+    padding: 20px;
+}
+
+#api .container #api-row #api-column #api-box #api-form #register-link {
+    margin-top: 0px !important;
+}
+
+.logo_style {
+    margin-left: 40%;
+    height: 150px;
+    width: 150px;
+    align-items: center;
+}
+
+.label {
+    color: #000000;
+    font-size: large;
+    margin-top: 5px;
+}
+
+.api_btn {
+    background-color: #1e1e1e;
+    border-color: #fff;
+    color: #fff;
+    width: 165px;
+    margin-top: 30px;
+    margin-left: 60px !important;
+    font-weight: 500;
+    font-size: large;
+    border-radius: 25px;
+    width: 80%;
+    height: 50px;
+    font-size: 1.3rem;
+    color: white;
+    font-weight: 700;
+    /* background: rgb(34, 193, 195); */
+    /* background: linear-gradient(90deg, #000428 0%, #004e92 100%); */
+    border: 0px;
+    cursor: pointer;
+    transition: opacity 0.25s ease-out;
+}
+
+.api_btn:hover {
+    background-color: rgb(3, 24, 46) !important;
+    border-color: #1e1e1e;
+    color: rgb(255, 255, 255) !important;
+    font-weight: 600;
+    font-size: larger;
+}
+
+.heading {
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.input_txt:focus {
+    border-width: 1.5px;
+    border-color: green;
+}
