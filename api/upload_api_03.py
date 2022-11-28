@@ -424,6 +424,7 @@ def main_function(list_of_all_violations, date_of_violation):
     for i in set_of_street_ava_ids:
         dict_of_violations_to_street[int(i)] = []
         dict_of_trees_to_street[int(i)] = []
+
     for violation in list_of_all_violations:
         if int(violation['street_id']) in set_of_unava_street_id:
             list_of_unava_violations.append(violation)
@@ -439,121 +440,125 @@ def main_function(list_of_all_violations, date_of_violation):
 
     if len(set_of_street_ava_ids) > 0:
         update_street_status(set_of_street_ava_ids, 1)
-
+    try:
     # #########
 
-    for street in set_of_street_ava_ids:
+        for street in set_of_street_ava_ids:
 
-        temp = dict_of_violations_to_street[street]
-        ref_pointa, ref_pointb, prev_point_one, prev_point_two, total_violation = get_prev_violations_StreetID(street,
-                                                                                                               date_of_violation)
+            temp = dict_of_violations_to_street[int(street)]
 
-        if int(total_violation) > 0:
-            # update
-            total_violation = int(total_violation) + len(temp)
-            side1 = []
-            side2 = []
-            for i in range(len(temp)):
-                if side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['min'].split(',')[0],
-                              ref_pointa['min'].split(',')[1]):
-                    side1.append(temp[i])
-                elif side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['max'].split(',')[0],
-                                ref_pointa['max'].split(',')[1]):
-                    side1.append(temp[i])
-                else:
-                    side2.append(temp[i])
-            lines01 = update_side(side1, prev_point_one)
-            lines02 = update_side(side2, prev_point_two)
-            update_map_view(str(street), str(lines01), str(lines02), str(total_violation), date_of_violation)
-        elif len(temp) > 0:
-            if len(temp) == 1:
-                lines = []
-                z = get_second_latlng(temp[0]['lat'], temp[0]['lng'])
-                if len(z) > 0:
-                    lines.append(make_responce(str(z[0]['lat']) + "," + str(z[0]['lng']),
-                                               str(z[1]['lat']) + "," + str(z[1]['lng'])))
-                else:
-                    lines.append({'starting': str(temp[0]['lat']) + "," + str(
-                        temp[0]['lng']),
-                                  'ending': '0,0',
-                                  'polylines': []})
-                insert_map_view(street, date_of_violation, {'min': str(z[0]['lat']) + "," + str(z[0]['lng']),
-                                                            'max': str(z[0]['lat']) + "," + str(z[0]['lng'])},
-                                {'min': 0, 'max': 0}, lines, [], 1)
-            else:
+            ref_pointa, ref_pointb, prev_point_one, prev_point_two, total_violation = get_prev_violations_StreetID(street,
+                                                                                                                   date_of_violation)
+
+            if int(total_violation) > 0:
+                # update
+                total_violation = int(total_violation) + len(temp)
                 side1 = []
                 side2 = []
-                side1.append(temp[0])
-
-                for i in range(1, len(temp)):
-                    if side_check(temp[0]['lat'], temp[0]['lng'], temp[i]['lat'], temp[i]['lng']):
+                for i in range(len(temp)):
+                    if side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['min'].split(',')[0],
+                                  ref_pointa['min'].split(',')[1]):
+                        side1.append(temp[i])
+                    elif side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['max'].split(',')[0],
+                                    ref_pointa['max'].split(',')[1]):
                         side1.append(temp[i])
                     else:
                         side2.append(temp[i])
-                side1_ref1, side1_ref2, side1_ = new_side(side1)
-                side2_ref1, side2_ref2, side2_ = new_side(side2)
-
-                insert_map_view(street, date_of_violation, {'min': side1_ref1, 'max': side1_ref2},
-                                {'min': side2_ref1, 'max': side2_ref2}, side1_, side2_, len(temp))
-
-    ####### Treeeeee
-
-    for street in set_of_street_ava_ids:
-        temp = dict_of_trees_to_street[street]
-        ref_pointa, ref_pointb, prev_point_one, prev_point_two, total_violation = get_prev_violations_tree_StreetID(
-            street, date_of_violation)
-
-        if int(total_violation) > 0:
-            # update
-            total_violation = int(total_violation) + len(temp)
-            side1 = []
-            side2 = []
-            for i in range(len(temp)):
-                if side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['min'].split(',')[0],
-                              ref_pointa['min'].split(',')[1]):
-                    side1.append(temp[i])
-                elif side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['max'].split(',')[0],
-                                ref_pointa['max'].split(',')[1]):
-                    side1.append(temp[i])
+                lines01 = update_side(side1, prev_point_one)
+                lines02 = update_side(side2, prev_point_two)
+                update_map_view(str(street), str(lines01), str(lines02), str(total_violation), date_of_violation)
+            elif len(temp) > 0:
+                if len(temp) == 1:
+                    lines = []
+                    z = get_second_latlng(temp[0]['lat'], temp[0]['lng'])
+                    if len(z) > 0:
+                        lines.append(make_responce(str(z[0]['lat']) + "," + str(z[0]['lng']),
+                                                   str(z[1]['lat']) + "," + str(z[1]['lng'])))
+                    else:
+                        lines.append({'starting': str(temp[0]['lat']) + "," + str(
+                            temp[0]['lng']),
+                                      'ending': '0,0',
+                                      'polylines': []})
+                    insert_map_view(street, date_of_violation, {'min': str(z[0]['lat']) + "," + str(z[0]['lng']),
+                                                                'max': str(z[0]['lat']) + "," + str(z[0]['lng'])},
+                                    {'min': 0, 'max': 0}, lines, [], 1)
                 else:
-                    side2.append(temp[i])
-            lines01 = update_side(side1, prev_point_one)
-            lines02 = update_side(side2, prev_point_two)
-            update_map_view_tree(str(street), str(lines01), str(lines02), str(total_violation), date_of_violation)
-        elif len(temp) > 0:
-            if len(temp) == 1:
-                lines = []
-                z = get_second_latlng(temp[0]['lat'], temp[0]['lng'])
-                if len(z) > 0:
-                    lines.append(make_responce(str(z[0]['lat']) + "," + str(z[0]['lng']),
-                                               str(z[1]['lat']) + "," + str(z[1]['lng'])))
-                else:
-                    lines.append({'starting': str(temp[0]['lat']) + "," + str(
-                        temp[0]['lng']),
-                                  'ending': '0,0',
-                                  'polylines': []})
-                insert_map_view_tree(street, date_of_violation, {'min': str(z[0]['lat']) + "," + str(z[0]['lng']),
-                                                                 'max': str(z[0]['lat']) + "," + str(z[0]['lng'])},
-                                     {'min': 0, 'max': 0}, lines, [], 1)
-            else:
+                    side1 = []
+                    side2 = []
+                    side1.append(temp[0])
+
+                    for i in range(1, len(temp)):
+                        if side_check(temp[0]['lat'], temp[0]['lng'], temp[i]['lat'], temp[i]['lng']):
+                            side1.append(temp[i])
+                        else:
+                            side2.append(temp[i])
+                    side1_ref1, side1_ref2, side1_ = new_side(side1)
+                    side2_ref1, side2_ref2, side2_ = new_side(side2)
+
+                    insert_map_view(street, date_of_violation, {'min': side1_ref1, 'max': side1_ref2},
+                                    {'min': side2_ref1, 'max': side2_ref2}, side1_, side2_, len(temp))
+
+        ####### Treeeeee
+
+        for street in set_of_street_ava_ids:
+            temp = dict_of_trees_to_street[int(street)]
+            ref_pointa, ref_pointb, prev_point_one, prev_point_two, total_violation = get_prev_violations_tree_StreetID(
+                street, date_of_violation)
+
+            if int(total_violation) > 0:
+                # update
+                total_violation = int(total_violation) + len(temp)
                 side1 = []
                 side2 = []
-                side1.append(temp[0])
-                for i in range(1, len(temp)):
-                    if side_check(temp[0]['lat'], temp[0]['lng'], temp[i]['lat'], temp[i]['lng']):
+                for i in range(len(temp)):
+                    if side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['min'].split(',')[0],
+                                  ref_pointa['min'].split(',')[1]):
+                        side1.append(temp[i])
+                    elif side_check(temp[i]['lat'], temp[i]['lng'], ref_pointa['max'].split(',')[0],
+                                    ref_pointa['max'].split(',')[1]):
                         side1.append(temp[i])
                     else:
                         side2.append(temp[i])
-                side1_ref1, side1_ref2, side1_ = new_side(side1)
-                side2_ref1, side2_ref2, side2_ = new_side(side2)
+                lines01 = update_side(side1, prev_point_one)
+                lines02 = update_side(side2, prev_point_two)
+                update_map_view_tree(str(street), str(lines01), str(lines02), str(total_violation), date_of_violation)
+            elif len(temp) > 0:
+                if len(temp) == 1:
+                    lines = []
+                    z = get_second_latlng(temp[0]['lat'], temp[0]['lng'])
+                    if len(z) > 0:
+                        lines.append(make_responce(str(z[0]['lat']) + "," + str(z[0]['lng']),
+                                                   str(z[1]['lat']) + "," + str(z[1]['lng'])))
+                    else:
+                        lines.append({'starting': str(temp[0]['lat']) + "," + str(
+                            temp[0]['lng']),
+                                      'ending': '0,0',
+                                      'polylines': []})
+                    insert_map_view_tree(street, date_of_violation, {'min': str(z[0]['lat']) + "," + str(z[0]['lng']),
+                                                                     'max': str(z[0]['lat']) + "," + str(z[0]['lng'])},
+                                         {'min': 0, 'max': 0}, lines, [], 1)
+                else:
+                    side1 = []
+                    side2 = []
+                    side1.append(temp[0])
+                    for i in range(1, len(temp)):
+                        if side_check(temp[0]['lat'], temp[0]['lng'], temp[i]['lat'], temp[i]['lng']):
+                            side1.append(temp[i])
+                        else:
+                            side2.append(temp[i])
+                    side1_ref1, side1_ref2, side1_ = new_side(side1)
+                    side2_ref1, side2_ref2, side2_ = new_side(side2)
 
-                insert_map_view_tree(street, date_of_violation, {'min': side1_ref1, 'max': side1_ref2},
-                                     {'min': side2_ref1, 'max': side2_ref2}, side1_, side2_, len(temp))
+                    insert_map_view_tree(street, date_of_violation, {'min': side1_ref1, 'max': side1_ref2},
+                                         {'min': side2_ref1, 'max': side2_ref2}, side1_, side2_, len(temp))
 
 
-    if len(set_of_street_ava_ids) > 0:
-        update_street_status(set_of_street_ava_ids, 0)
-
+        if len(set_of_street_ava_ids) > 0:
+            update_street_status(set_of_street_ava_ids, 0)
+    except Exception as e:
+        print(e)
+        if len(set_of_street_ava_ids) > 0:
+            update_street_status(set_of_street_ava_ids, 0)
     return list_of_unava_violations
 
 # {
