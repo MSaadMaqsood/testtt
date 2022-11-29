@@ -152,35 +152,82 @@ export default function MiniDrawer() {
                 <MenuIcon />
               </IconButton>
             </ListItemIcon>
-            <ListItemText>
-              {" "}
-              
-            </ListItemText>
+            <ListItemText> </ListItemText>
           </ListItem>
           <ListItem button>
-            <ListItemIcon  onClick={() =>{  window.location.href ="/dashboard";  }}>
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/dashboard";
+              }}
+            >
               <HomeIcon />
             </ListItemIcon>
-            <ListItemText primary="Home"  onClick={() =>{  window.location.href ="/dashboard";  }} />
-          </ListItem>
-          <ListItem button >
-            <ListItemIcon   onClick={() =>{  window.location.href ="/violation/1";  }}>
-            <ListNested />
-            </ListItemIcon>
-            <ListItemText primary="Streets"   onClick={() =>{  window.location.href ="/violation/1";  }}/>
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon onClick={() =>{  window.location.href ="/allviolations";  }}>
-            <DescriptionIcon   />
-            </ListItemIcon>
-            <ListItemText primary="All Violations" onClick={() =>{  window.location.href ="/allviolations";  }}/>
+            <ListItemText
+              primary="Home"
+              onClick={() => {
+                window.location.href = "/dashboard";
+              }}
+            />
           </ListItem>
           <ListItem button>
-            <ListItemIcon onClick={() =>{  window.location.href ="/verifier";  }}>
-              
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/violation/1";
+              }}
+            >
+              <ListNested />
+            </ListItemIcon>
+            <ListItemText
+              primary="Streets"
+              onClick={() => {
+                window.location.href = "/violation/1";
+              }}
+            />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/allviolations";
+              }}
+            >
+              <DescriptionIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="All Violations"
+              onClick={() => {
+                window.location.href = "/allviolations";
+              }}
+            />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/duplicatepage";
+              }}
+            >
+              <DescriptionIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Duplicate Violations"
+              onClick={() => {
+                window.location.href = "/duplicatepage";
+              }}
+            />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/verifier";
+              }}
+            >
               <GroupIcon />
             </ListItemIcon>
-            <ListItemText primary="Verifier"   onClick={() =>{  window.location.href ="/verifier";  }}/>
+            <ListItemText
+              primary="Verifier"
+              onClick={() => {
+                window.location.href = "/verifier";
+              }}
+            />
           </ListItem>
           {/* <ListItem button>
             <ListItemIcon>
@@ -188,7 +235,6 @@ export default function MiniDrawer() {
             </ListItemIcon>
             <ListItemText primary="Map API"  onClick={() =>{  window.location.href ="/map_api";  }}/>
           </ListItem> */}
-          
         </List>
       </Drawer>
       <main className={classes.content}>
