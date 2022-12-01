@@ -15,7 +15,7 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
-import "./card.css";
+//import "./card.css";
 
 export default class DuplicatePage extends Component {
   constructor(props) {
@@ -84,11 +84,15 @@ export default class DuplicatePage extends Component {
     
     this.handleChange_devid = this.handleChange_devid.bind(this);
     this.handleChange_date = this.handleChange_date.bind(this);
+
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
+
     this.update_violation_duplicate = this.update_violation_duplicate.bind(this);
+
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
+
     this.get_all_violations();
   }
   showModal = (para, main_vio) => (e) => {
@@ -123,11 +127,13 @@ export default class DuplicatePage extends Component {
     temp.new_violation_type_id = e.target.value;
     this.setState({ model_show_violation_info: temp });
   };
+
   change_street_vio = (e) => {
     let temp = this.state.model_show_violation_info;
     temp.new_street_id = e.target.value;
     this.setState({ model_show_violation_info: temp });
   };
+
   hideModal = () => {
     this.setState({ show_model: false });
   };
@@ -168,7 +174,7 @@ export default class DuplicatePage extends Component {
     } else {
       let tempx = [];
       filter_data.forEach((element) => {
-        if (element.dev_id == this.state.filter_table.device_id) {
+        if (element.device_id == this.state.filter_table.device_id) {
           tempx.push(element);
         }
       });
@@ -289,7 +295,7 @@ export default class DuplicatePage extends Component {
           }}
         >
           <div className="verifier_cases_details_table">
-            {/* <div
+            <div
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -357,7 +363,7 @@ export default class DuplicatePage extends Component {
               >
                 Reset Filter{" "}
               </button>
-            </div> */}
+            </div>
             <div class="row" style={{ paddingRight: "50px" }}>
               <div class="table-responsive ">
                 <table class="table table-striped ">
