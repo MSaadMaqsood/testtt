@@ -10,8 +10,6 @@ from upload_api_03 import *
 
 filename_upload = input("Input filename (name.csv): ")
 uploading_date = input("Input Date (YYYY-MM-DD): ")
-# filename_upload = "upp.csv"
-# uploading_date = '2022-11-14'
 print("\nSetting up violations!!")
 try:
     tttttt = []
@@ -47,7 +45,7 @@ try:
                 "correct": 1,
                 "device_id": 1,
                 "polygon_img": "0",
-
+                "super_violation_id": 0,
             }
             tttttt.append(temp)
 except:

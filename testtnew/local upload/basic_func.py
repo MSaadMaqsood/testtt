@@ -1,5 +1,4 @@
 import json
-
 import mysql.connector
 import math
 import requests
@@ -23,6 +22,7 @@ def db_connection():
     cnx = mysql.connector.connect(host=host, user=user, password=password, database=database)
     return cnx
 
+
 def get_map_api_():
     map_api = ""
     cnx = db_connection()
@@ -38,6 +38,19 @@ def get_map_api_():
 
 
 api_text = get_map_api_()
+
+
+def get_prev_violation_last_3_day(udate):
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = ("SELECT `api` FROM `map_api` WHERE `status` = 1;")
+    cursor.execute(query)
+    for a in cursor:
+        map_api = a
+    cursor.close()
+    cnx.close()
+    map_api_ = str(map_api[0])
+    return map_api_
 
 
 def calcCrow(lat1, lon1, lat2, lon2):
@@ -339,7 +352,7 @@ def insert_violations_Street(violations):
             j['accurate']) + "','" + str(j['risk']) + "','" + r.json()['name'] + "','" + str(j['lat']) + "','" + str(
             j['lng']) + "','"+str(j['device_id'])+"','"+j['polygon_img']+"','" + str(
             j['violation_date']) + "','2022-10-28 " + str(
-            j['violation_time']) + "','0','0',"+str(j['correct'])+")")
+            j['violation_time']) + "','0','0',"+str(j['correct'])+","+str(j['super_violation_id'])+")")
 
     query0 = query_data_list[0]
     for j in range(1, len(query_data_list)):
@@ -348,7 +361,7 @@ def insert_violations_Street(violations):
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-                "INSERT INTO `violation`(`street_id`, `violation_type_id`, `details`, `accurate`, `risk`, `display_img`, `lat`, `long`,`device_id`, `polygon_img`, `violation_date`, `violation_time`, `violation_status`, `action_taken`, `correct`) VALUES " +
+                "INSERT INTO `violation`(`street_id`, `violation_type_id`, `details`, `accurate`, `risk`, `display_img`, `lat`, `long`,`device_id`, `polygon_img`, `violation_date`, `violation_time`, `violation_status`, `action_taken`, `correct`, `super_violation_id`) VALUES " +
                 query0)
 
     cursor.execute(query)

@@ -34,6 +34,7 @@ export default class DuplicatePage extends Component {
 
       show_model: false,
       model_show_violation_info: {
+        'vio':{
         violation_id: 0,
         violation_type_id: 0,
         violation_name: "",
@@ -51,10 +52,28 @@ export default class DuplicatePage extends Component {
         new_violation_type_id: 0,
         new_street_id: 0,
       },
+      'main':{
+        violation_id: 0,
+        violation_type_id: 0,
+        violation_name: "",
+        street_id: 0,
+        street_name: "",
+        accurate: 0,
+        risk: 0,
+        display_img: "",
+        violation_date: "",
+        violation_time: "",
+        lat: 0,
+        lng: 0,
+        correct: 0,
+        current_status: "Not Reported",
+        new_violation_type_id: 0,
+        new_street_id: 0,
+      }
+    },
       filter_table: {
         violation_type: -5,
         device_id: "",
-        Correct: "",
         filter_date: "",
       },
     };
@@ -62,22 +81,21 @@ export default class DuplicatePage extends Component {
     this.show_filter = this.show_filter.bind(this);
     this.clear_filter = this.clear_filter.bind(this);
     this.change_violation_type = this.change_violation_type.bind(this);
-    this.change_correct_type = this.change_correct_type.bind(this);
+    
     this.handleChange_devid = this.handleChange_devid.bind(this);
     this.handleChange_date = this.handleChange_date.bind(this);
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
-    this.update_violation_cor = this.update_violation_cor.bind(this);
-    this.update_violation_incor = this.update_violation_incor.bind(this);
+    this.update_violation_duplicate = this.update_violation_duplicate.bind(this);
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
     this.get_all_violations();
   }
-  showModal = (para) => (e) => {
+  showModal = (para, main_vio) => (e) => {
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_single_violation_Verify/" + para)
+      .get(this.props.server + "/get_single_violation_duplicate/" + para +"/"+main_vio)
       .then(function (response) {
         com.setState({
           model_show_violation_info: response.data,
@@ -85,55 +103,13 @@ export default class DuplicatePage extends Component {
         });
       });
   };
-  update_violation_cor() {
-    const com = this;
-    if (
-      this.state.model_show_violation_info.street_id == 0 &&
-      this.state.model_show_violation_info.new_street_id == 0
-    ) {
-      alert("To make it Correct you need to Select Street!!!!");
-    } else if (
-      this.state.model_show_violation_info.violation_type_id == 0 &&
-      this.state.model_show_violation_info.new_violation_type_id == 0
-    ) {
-      alert("To make it Correct you need to Select Violation Type!!!!");
-    } else {
-      const server = this.props.server;
-      const axios = require("axios").default;
-
-      this.setState({ show_uploading: true });
-      axios
-        .post(this.props.server + "/update_violation_for_verify", {
-          user_id: sessionStorage.getItem("user_id"),
-          violation_id: this.state.model_show_violation_info.violation_id,
-          updated_vio_id:
-            this.state.model_show_violation_info.new_violation_type_id,
-          updated_street_id: this.state.model_show_violation_info.new_street_id,
-          cor: 1,
-        })
-        .then(function (response) {
-          com.setState({ show_uploading: false });
-          if (response.data.result === 1) {
-            alert("Violation updated! Refresh Page");
-          } else if (response.data.result === 0) {
-            alert("Violation updated Failed! Refresh Page");
-          }
-        });
-    }
-  }
-  update_violation_incor() {
+  
+  update_violation_duplicate = (para, duplicate) => (e) => {
     const com = this;
     const server = this.props.server;
     const axios = require("axios").default;
     axios
-      .post(this.props.server + "/update_violation_for_verify", {
-        user_id: sessionStorage.getItem("user_id"),
-        violation_id: this.state.model_show_violation_info.violation_id,
-        updated_vio_id:
-          this.state.model_show_violation_info.new_violation_type_id,
-        updated_street_id: this.state.model_show_violation_info.new_street_id,
-        cor: 0,
-      })
+      .get(this.props.server + "/update_duplicate/"+para+"/"+duplicate)
       .then(function (response) {
         if (response.data.result === 1) {
           alert("Violation updated! Refresh Page");
@@ -162,7 +138,7 @@ export default class DuplicatePage extends Component {
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_all_violation")
+      .get(this.props.server + "/get_all_duplicate_violation")
       .then(function (response) {
         com.setState({
           all_data: response.data.myData,
@@ -170,7 +146,7 @@ export default class DuplicatePage extends Component {
           show_data: response.data.myData,
           show_pages: response.data.pages,
           vio_type_list: response.data.vio,
-          street_list: response.data.street_list,
+          
         });
       });
   }
@@ -199,16 +175,7 @@ export default class DuplicatePage extends Component {
       filter_data = tempx;
     }
 
-    if (this.state.filter_table.Correct == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.cor == this.state.filter_table.Correct) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
+    
     if (this.state.filter_table.filter_date == "") {
     } else {
       let tempx = [];
@@ -256,13 +223,7 @@ export default class DuplicatePage extends Component {
       filter_table: xx,
     });
   };
-  change_correct_type = (e) => {
-    let xx = this.state.filter_table;
-    xx.Correct = e.target.value;
-    this.setState({
-      filter_table: xx,
-    });
-  };
+  
   handleChange_devid(e) {
     let xx = this.state.filter_table;
     xx.device_id = e.target.value;
@@ -289,22 +250,21 @@ export default class DuplicatePage extends Component {
       const rows = hh.map((x, index) => {
         return (
           <tr>
-            <td>{index + 1}</td>
+            <td>{x.violation_id}</td>
+            <td>{x.super_violation_id}</td>
             <td>{x.violation_name}</td>
             <td>{x.street_name}</td>
-            <td>{x.accurate}</td>
-            <td>{x.risk}</td>
+            
             <td>
               {x.violation_date} at {x.violation_time}
             </td>
-            <td>{x.cor}</td>
-            <td>{x.dev_id}</td>
+            <td>{x.device_id}</td>
             <td>
               {" "}
               <Button
                 variant="primary"
                 style={{ height: "60%" }}
-                onClick={this.showModal(x.violation_id)}
+                onClick={this.showModal(x.violation_id, x.super_violation_id)}
               >
                 Show Details
               </Button>
@@ -329,7 +289,7 @@ export default class DuplicatePage extends Component {
           }}
         >
           <div className="verifier_cases_details_table">
-            <div
+            {/* <div
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -352,24 +312,7 @@ export default class DuplicatePage extends Component {
                 </select>
               </div>
 
-              <div
-                class="input-group mb-3"
-                style={{ width: "600px", marginLeft: "10px" }}
-              >
-                <span class="input-group-text" id="basic-addon1">
-                  Status{" "}
-                </span>
-                <select
-                  class="form-select"
-                  aria-label="Default select example"
-                  onChange={this.change_correct_type}
-                >
-                  <option value=""></option>
-                  <option value="Correct">Correct</option>
-                  <option value="Incorrect">Incorrect</option>
-                  <option value="Pending">Pending</option>
-                </select>
-              </div>
+              
               <div
                 class="input-group mb-3"
                 style={{ width: "600px", marginLeft: "10px" }}
@@ -414,23 +357,21 @@ export default class DuplicatePage extends Component {
               >
                 Reset Filter{" "}
               </button>
-            </div>
+            </div> */}
             <div class="row" style={{ paddingRight: "50px" }}>
               <div class="table-responsive ">
                 <table class="table table-striped ">
                   <thead>
                     <tr>
+                    <th style={{ fontFamily: "Verdana" }}>
+                        Main Case ID{" "}
+                      </th>
                       <th style={{ fontFamily: "Verdana" }}>
                         Duplicate Case ID{" "}
                       </th>
                       <th style={{ fontFamily: "Verdana" }}>Type </th>
                       <th style={{ fontFamily: "Verdana" }}>Street </th>
-                      <th style={{ fontFamily: "Verdana" }}>Accuracy</th>
-                      <th style={{ fontFamily: "Verdana" }}>Risk</th>
                       <th style={{ fontFamily: "Verdana" }}>Date && Time</th>
-                      <th style={{ fontFamily: "Verdana" }}>
-                        Correct/Incorrect
-                      </th>
                       <th style={{ fontFamily: "Verdana" }}>Device ID</th>
                       <th></th>
                     </tr>
@@ -462,7 +403,7 @@ export default class DuplicatePage extends Component {
                         <Card.Header
                           style={{ fontWidth: "bold", fontSize: "20px" }}
                         >
-                          Violation #{this.state.show_data.violation_id}
+                          Violation #{this.state.model_show_violation_info.vio.violation_id}
                         </Card.Header>
                         <Form style={{ paddingTop: "5%" }}>
                           <table className="model_table_">
@@ -474,7 +415,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Violation Type</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .violation_name
                                     }
                                     disabled
@@ -490,7 +431,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Street</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .street_name
                                     }
                                     disabled
@@ -509,7 +450,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Risk</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info.risk
+                                      this.state.model_show_violation_info.vio.risk
                                     }
                                     disabled
                                   />
@@ -522,7 +463,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Accurate</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .accurate
                                     }
                                     disabled
@@ -538,10 +479,10 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Date & Time</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .violation_date +
                                       " at " +
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .violation_time
                                     }
                                     disabled
@@ -555,7 +496,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Report Status</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.vio
                                         .current_status
                                     }
                                     disabled
@@ -606,7 +547,7 @@ export default class DuplicatePage extends Component {
                         <Card.Header
                           style={{ fontWidth: "bold", fontSize: "20px" }}
                         >
-                          Violation #{this.state.show_data.violation_id}
+                          Violation #{this.state.model_show_violation_info.main.violation_id}
                         </Card.Header>
                         <Form style={{ paddingTop: "5%" }}>
                           <table className="model_table_">
@@ -618,7 +559,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Violation Type</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .violation_name
                                     }
                                     disabled
@@ -634,7 +575,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Street</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .street_name
                                     }
                                     disabled
@@ -653,7 +594,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Risk</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info.risk
+                                      this.state.model_show_violation_info.main.risk
                                     }
                                     disabled
                                   />
@@ -666,7 +607,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Accurate</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .accurate
                                     }
                                     disabled
@@ -682,10 +623,10 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Date & Time</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .violation_date +
                                       " at " +
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .violation_time
                                     }
                                     disabled
@@ -699,7 +640,7 @@ export default class DuplicatePage extends Component {
                                   <Form.Label>Report Status</Form.Label>
                                   <Form.Control
                                     placeholder={
-                                      this.state.model_show_violation_info
+                                      this.state.model_show_violation_info.main
                                         .current_status
                                     }
                                     disabled
@@ -763,14 +704,14 @@ export default class DuplicatePage extends Component {
                       <button
                         type="button"
                         class="btnn"
-                        onClick={this.update_violation_cor}
+                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id, 1)}
                       >
                         Yes, it's a duplicate
                       </button>
                       <button
                         type="button"
                         class="btnn"
-                        onClick={this.update_violation_incor}
+                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id, 0)}
                       >
                         No, it's not
                       </button>

@@ -208,9 +208,28 @@ def violation_tree_map_data():
 """################################### Violation Page ######################################################"""
 
 
+def get_street_list_by_id(street_id):
+    street_name = ""
+    data = []
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = (
+        "SELECT `streetid`, `streetname` FROM `street` ORDER BY `streetid` ASC;")
+    cursor.execute(query)
+
+    for a, b in cursor:
+        if int(street_id) == a:
+            street_name = b
+        else:
+            data.append({"street_id": a, "street_name": b})
+    cursor.close()
+    cnx.close()
+    return data, street_name
+
+
 @app.route('/get_violation_page/<street_id>')
 def get_violation_page(street_id):
-    street_ls, street_nm = get_street_list(street_id)
+    street_ls, street_nm = get_street_list_by_id(street_id)
     violation_table, violation_count = get_violation_table_now_default(street_id)
     return jsonify({
         "street_name": street_nm,
@@ -339,24 +358,6 @@ def get_street_health(street_id, violation_count):
             }
 
 
-def get_street_list(street_id):
-    street_name = ""
-    data = []
-    cnx = db_connection()
-    cursor = cnx.cursor()
-    query = (
-        "SELECT `streetid`, `streetname` FROM `street` ORDER BY `streetid` ASC;")
-    cursor.execute(query)
-
-    for a, b in cursor:
-        if int(street_id) == a:
-            street_name = b
-        else:
-            data.append({"street_id": a, "street_name": b})
-    cursor.close()
-    cnx.close()
-    return data, street_name
-
 
 def get_street_list():
     data = []
@@ -404,7 +405,7 @@ def get_violation_table_now_default(street_id):
     # query = (
     #             "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.street_id=" + str(
     #         street_id) + " AND (violation.violation_date='"+today_date+"' OR violation.violation_date='"+yesterday_date+"' );")
-    query = ("SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.street_id=" + str(
+    query = ("SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.correct != -2 and violation.correct != 2 and violation.street_id=" + str(
         street_id) + ";")
 
     cursor.execute(query)
@@ -442,7 +443,7 @@ def get_violation_table_by_date(street_id, fdate):
     cnx = db_connection()
     cursor = cnx.cursor()
     query = (
-            "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.street_id=" + str(
+            "SELECT violation.violation_id,violation.violation_type_id, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation_type.violationname FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id WHERE violation.correct != -2 and violation.correct != 2 and violation.street_id=" + str(
         street_id) + " AND violation.violation_date='"+new_date+"';")
     cursor.execute(query)
 
@@ -832,7 +833,7 @@ def get_all_violation():
 
     cnx = db_connection()
     cursor = cnx.cursor()
-    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.violation_date, violation.violation_time, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE 1 ORDER BY violation.violation_id DESC;")
+    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.violation_date, violation.violation_time, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.correct != -2 and violation.correct != 2 ORDER BY violation.violation_id DESC;")
     cursor.execute(query)
 
     for a, b, c, d, e, f, g, h, i, j, k in cursor:
@@ -868,6 +869,139 @@ def get_all_violation():
 
     return {"myData": violation_table_data, "pages": pages, "vio": vv, "street_list": get_street_list()}
 
+
+@app.route('/get_all_duplicate_violation')
+def get_all_duplicate_violation():
+
+    violation_table_data = list()
+
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.violation_date, violation.violation_time, violation.device_id, violation.super_violation_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.correct=-2 ORDER BY violation.violation_id DESC;")
+    cursor.execute(query)
+
+    for a, b, c, d, e, f, g, h, i in cursor:
+
+        violation_table_data.append({
+            "violation_id": a,
+            "violation_type_id": b,
+            "violation_name": c,
+            "streetid": d,
+            "street_name": e,
+            "violation_date": f.strftime('%b %d, %Y'),
+            "violation_date_format": f.strftime('%Y-%m-%d'),
+            "violation_time": g.strftime('%H:%M'),
+            "device_id": h,
+            "super_violation_id": i,
+        })
+
+    pages = math.floor(len(violation_table_data) / 10)
+    if not (len(violation_table_data) % 10 == 0):
+        pages = pages + 1
+
+    cursor.close()
+    cnx.close()
+    vv = get_vio_for_verify()
+
+    return {"myData": violation_table_data, "pages": pages, "vio": vv}
+
+
+@app.route('/get_single_violation_duplicate/<violation_id>/<main_id>')
+def get_single_violation_duplicate(violation_id, main_id):
+
+    violation_table_data = {'vio': {}, 'main': {}}
+    cnx = db_connection()
+    cursor = cnx.cursor()
+    query = (
+            "SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation.lat, violation.long, violation.correct, violation.action_taken FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.violation_id="+str(violation_id)+";")
+    cursor.execute(query)
+    for a, b, c, d, e, f, g, h, i, j, k, l, m, n in cursor:
+        cs = "Not Reported"
+        if n == 1:
+            cs = "Reported"
+
+        violation_table_data['vio']={
+            "violation_id": a,
+            "violation_type_id": b,
+            "violation_name": c,
+            "street_id": d,
+            "street_name": e,
+            "accurate": f,
+            "risk": g,
+            "display_img": h,
+            "violation_date": i.strftime('%b %d, %Y'),
+            "violation_time": j.strftime('%H:%M'),
+            "lat": float(k),
+            "lng": float(l),
+            "correct": m,
+            "current_status": cs,
+
+            "new_violation_type_id": 0,
+            "new_street_id": 0,
+        }
+
+    cursor.close()
+
+    # #############################33
+    cursor1 = cnx.cursor()
+    query1 = (
+            "SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.display_img, violation.violation_date, violation.violation_time, violation.lat, violation.long, violation.correct, violation.action_taken FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.violation_id=" + str(
+        main_id) + ";")
+    cursor1.execute(query1)
+    for a, b, c, d, e, f, g, h, i, j, k, l, m, n in cursor1:
+        cs = "Not Reported"
+        if n == 1:
+            cs = "Reported"
+
+        violation_table_data['main'] = {
+            "violation_id": a,
+            "violation_type_id": b,
+            "violation_name": c,
+            "street_id": d,
+            "street_name": e,
+            "accurate": f,
+            "risk": g,
+            "display_img": h,
+            "violation_date": i.strftime('%b %d, %Y'),
+            "violation_time": j.strftime('%H:%M'),
+            "lat": float(k),
+            "lng": float(l),
+            "correct": m,
+            "current_status": cs,
+
+            "new_violation_type_id": 0,
+            "new_street_id": 0,
+        }
+
+    cursor1.close()
+    # #################################3
+    cnx.close()
+    return violation_table_data
+
+
+@app.route('/update_duplicate/<violation_id>/<duplicate>')
+def update_duplicate(violation_id, duplicate):
+    try:
+        if int(duplicate) == 0:
+            cnx = db_connection()
+            cursor1 = cnx.cursor()
+            query1 = ("UPDATE `violation` SET `correct`='-1',`super_violation_id`='0' WHERE `violation_id`='"+violation_id+"'")
+            cursor1.execute(query1)
+            cnx.commit()
+            cursor1.close()
+            cnx.close()
+        else:
+            cnx = db_connection()
+            cursor1 = cnx.cursor()
+            query1 = (
+                        "UPDATE `violation` SET `correct`='2' WHERE `violation_id`='" + violation_id + "'")
+            cursor1.execute(query1)
+            cnx.commit()
+            cursor1.close()
+            cnx.close()
+        return {'result': 1}
+    except:
+        return {'result': 0}
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=1244)
