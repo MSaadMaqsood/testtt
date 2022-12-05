@@ -13,6 +13,7 @@ export default class Login extends Component {
       password: "",
       map_api:"",
       go: false,
+      go_exe: false,
     };
     this.login = this.login.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -35,9 +36,28 @@ export default class Login extends Component {
     if(this.state.map_api === ""){
       alert("No Map Api Found!");
     }else{
-      sessionStorage.setItem("user_id", 1);
-      sessionStorage.setItem("map_api", this.state.map_api);
-      this.setState({ go: true });
+      const com = this;
+      const axios = require("axios").default;
+      axios.post(this.props.server+"/user_login",{"username":this.state.username, "pwd":this.state.password}).then(function (response) {
+        // handle success
+        if (response.data.userid == 0){
+          alert("No User Found!");
+        }else{
+          sessionStorage.setItem("user_id", response.data.userid);
+          sessionStorage.setItem("map_api", com.state.map_api);
+          if (response.data.position == "Executive"){
+            com.setState({
+              go_exe: true
+            });
+          }else{
+            com.setState({
+              go: true
+            });
+          }
+          
+        }
+        
+      });
     }
   }
   onChange(e) {
@@ -46,6 +66,9 @@ export default class Login extends Component {
   render() {
     if (this.state.go) {
       return <Navigate to="/Dashboard" />;
+    }
+    if (this.state.go_exe) {
+      return <Navigate to="/exe_dashboard" />;
     }
     return (
       <div>
@@ -99,7 +122,7 @@ export default class Login extends Component {
                     <div class="form-group btn_section">
                       <div class="v-center">
                         <input
-                          type="submit"
+                          type="button"
                           name="Login"
                           class="btn btn-md login_btn"
                           value="Login"

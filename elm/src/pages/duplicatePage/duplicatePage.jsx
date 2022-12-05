@@ -108,15 +108,16 @@ export default class DuplicatePage extends Component {
       });
   };
   
-  update_violation_duplicate = (para, duplicate) => (e) => {
+  update_violation_duplicate = (para,main_id, duplicate) => (e) => {
     const com = this;
     const server = this.props.server;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/update_duplicate/"+para+"/"+duplicate)
+      .get(this.props.server + "/update_duplicate/"+para+"/"+main_id+"/"+duplicate+"/"+sessionStorage.getItem("user_id"))
       .then(function (response) {
         if (response.data.result === 1) {
           alert("Violation updated! Refresh Page");
+          window.location.reload(false);
         } else if (response.data.result === 0) {
           alert("Violation updated Failed! Refresh Page");
         }
@@ -511,6 +512,20 @@ export default class DuplicatePage extends Component {
                               </td>
                             </tr>
                           </table>
+                          <img
+                              src={
+                                this.props.server +
+                                "/show_violation_image/" +
+                                this.state.model_show_violation_info.vio.display_img
+                              }
+                              style={{
+                                width: "98%",
+                                height: "200px",
+                                paddingTop: "2%",
+                                marginLeft: "1%",
+                                marginBottom: "1%",
+                              }}
+                          />
                         </Form>
                         {/* <div className="Modal_verifier">
                         <img
@@ -654,7 +669,22 @@ export default class DuplicatePage extends Component {
                                 </Form.Group>
                               </td>
                             </tr>
+                           
                           </table>
+                          <img
+                              src={
+                                this.props.server +
+                                "/show_violation_image/" +
+                                this.state.model_show_violation_info.main.display_img
+                              }
+                              style={{
+                                width: "98%",
+                                height: "200px",
+                                paddingTop: "2%",
+                                marginLeft: "1%",
+                                marginBottom: "1%",
+                              }}
+                          />
                         </Form>
                         {/* <div className="Modal_verifier">
                         <img
@@ -710,14 +740,14 @@ export default class DuplicatePage extends Component {
                       <button
                         type="button"
                         class="btnn"
-                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id, 1)}
+                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id,this.state.model_show_violation_info.main.violation_id, 1)}
                       >
                         Yes, it's a duplicate
                       </button>
                       <button
                         type="button"
                         class="btnn"
-                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id, 0)}
+                        onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id,this.state.model_show_violation_info.main.violation_id, 0)}
                       >
                         No, it's not
                       </button>

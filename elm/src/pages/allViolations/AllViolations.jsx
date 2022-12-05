@@ -49,6 +49,7 @@ export default class AllViolations extends Component {
         current_status: "Not Reported",
         new_violation_type_id: 0,
         new_street_id: 0,
+        sensitivity: -1
       },
       filter_table: {
         violation_type: -5,
@@ -70,6 +71,7 @@ export default class AllViolations extends Component {
     this.update_violation_incor = this.update_violation_incor.bind(this);
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
+    this.change_vio_sensitivity = this.change_vio_sensitivity.bind(this);
     this.get_all_violations();
   }
   showModal = (para) => (e) => {
@@ -86,6 +88,7 @@ export default class AllViolations extends Component {
   };
   update_violation_cor() {
     const com = this;
+    
     if (
       this.state.model_show_violation_info.street_id == 0 &&
       this.state.model_show_violation_info.new_street_id == 0
@@ -96,7 +99,10 @@ export default class AllViolations extends Component {
       this.state.model_show_violation_info.new_violation_type_id == 0
     ) {
       alert("To make it Correct you need to Select Violation Type!!!!");
-    } else {
+    }else if(this.state.model_show_violation_info.sensitivity == -1){
+      alert("To make it Correct you need to Select Sensitivity!!!!");
+    } 
+    else {
       const server = this.props.server;
       const axios = require("axios").default;
 
@@ -109,11 +115,13 @@ export default class AllViolations extends Component {
             this.state.model_show_violation_info.new_violation_type_id,
           updated_street_id: this.state.model_show_violation_info.new_street_id,
           cor: 1,
+          sensitivity: this.state.model_show_violation_info.sensitivity, 
         })
         .then(function (response) {
           com.setState({ show_uploading: false });
           if (response.data.result === 1) {
-            alert("Violation updated! Refresh Page");
+            alert("Violation updated!");
+            window.location.reload(false);
           } else if (response.data.result === 0) {
             alert("Violation updated Failed! Refresh Page");
           }
@@ -136,6 +144,7 @@ export default class AllViolations extends Component {
       .then(function (response) {
         if (response.data.result === 1) {
           alert("Violation updated! Refresh Page");
+          window.location.reload(false);
         } else if (response.data.result === 0) {
           alert("Violation updated Failed! Refresh Page");
         }
@@ -269,6 +278,13 @@ export default class AllViolations extends Component {
       filter_table: xx,
     });
   }
+
+  change_vio_sensitivity = (e) => {
+    
+    const temp = parseInt(e.target.value);
+    this.state.model_show_violation_info.sensitivity = temp;
+    
+  };
 
   handleChange_date(e) {
     let xx = this.state.filter_table;
@@ -612,6 +628,44 @@ export default class AllViolations extends Component {
                         style={{
                           fontSize: "20px",
                           color: "#322D2C",
+                          marginTop: "8px",
+                          marginLeft: "-5rem",
+                          marginRight: "1rem",
+                        }}
+                      >
+                        Confirm Sensitivity
+                      </h5>
+                      <FormControl>
+                        {/* <FormLabel id="demo-row-radio-buttons-group-label">
+                          Gender
+                        </FormLabel> */}
+                        <RadioGroup
+                          row
+                          aria-labelledby="demo-row-radio-buttons-group-label"
+                          name="row-radio-buttons-group"
+                          onChange={this.change_vio_sensitivity}
+                        >
+                          <FormControlLabel
+                            value="1"
+                            control={<Radio />}
+                            label="YES"
+                          />
+                          <FormControlLabel
+                            value="0"
+                            control={<Radio />}
+                            label="NO"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <div
+                      className="verifier_action_buttons"
+                      style={{ marginLeft: "35%", marginTop: "10px" }}
+                    >
+                      <h5
+                        style={{
+                          fontSize: "20px",
+                          color: "#322D2C",
                           marginLeft: "-5rem",
                           marginTop: "8px",
                           marginRight: "1rem",
@@ -634,43 +688,7 @@ export default class AllViolations extends Component {
                         Incorrect
                       </button>
                     </div>
-                    <div
-                      className="verifier_action_buttons"
-                      style={{ marginLeft: "35%", marginTop: "10px" }}
-                    >
-                      <h5
-                        style={{
-                          fontSize: "20px",
-                          color: "#322D2C",
-                          marginTop: "8px",
-                          marginLeft: "-5rem",
-                          marginRight: "1rem",
-                        }}
-                      >
-                        Confirm Sensitivity
-                      </h5>
-                      <FormControl>
-                        {/* <FormLabel id="demo-row-radio-buttons-group-label">
-                          Gender
-                        </FormLabel> */}
-                        <RadioGroup
-                          row
-                          aria-labelledby="demo-row-radio-buttons-group-label"
-                          name="row-radio-buttons-group"
-                        >
-                          <FormControlLabel
-                            value="YES"
-                            control={<Radio />}
-                            label="YES"
-                          />
-                          <FormControlLabel
-                            value="NO"
-                            control={<Radio />}
-                            label="NO"
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </div>
+                    
                   </div>
                 )}
 

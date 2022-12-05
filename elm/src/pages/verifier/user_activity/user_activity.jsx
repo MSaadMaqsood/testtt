@@ -84,7 +84,10 @@ export default class UserActivity extends Component {
                   <th style={{ fontFamily: "Verdana" }}>Updated Violation Type</th>
                   <th style={{ fontFamily: "Verdana" }}>Prev Street</th>
                   <th style={{ fontFamily: "Verdana" }}>Updated Street</th>
-                  <th style={{ fontFamily: "Verdana" }}>Correct/Incorrect</th>
+                  <th style={{ fontFamily: "Verdana" }}>Corrected</th>
+                  <th style={{ fontFamily: "Verdana" }}>Sensitivity</th>
+                  <th style={{ fontFamily: "Verdana" }}>Duplicate Main ID</th>
+                  <th style={{ fontFamily: "Verdana" }}>Duplicatation</th>
                   <th style={{ fontFamily: "Verdana" }}>Entry Date</th>
                   <th style={{ fontFamily: "Verdana" }}>View</th>
                 </tr>
@@ -100,6 +103,9 @@ export default class UserActivity extends Component {
                   <td>{x.prev_street}</td>
                   <td>{x.updated_street}</td>
                   <td>{x.cor}</td>
+                  <td>{x.sensitivity}</td>
+                  <td>{x.main_id}</td>
+                  <td>{x.duplicated}</td>
                   <td>{x.entry_date}</td>
                   <td>
                     {" "}

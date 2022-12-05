@@ -645,7 +645,7 @@ def get_street_vio_Verify(street_id):
 
 @app.route('/update_violation_for_verify', methods = ['POST'])
 def update_violation_for_verify():
-    # user_id, violation_id, updated_vio_id, updated_street_id, cor
+    # user_id, violation_id, updated_vio_id, updated_street_id, cor, sensitivity
 
     request_data = request.get_json()
 
@@ -659,7 +659,7 @@ def update_violation_for_verify():
     violation_id = int(request_data['violation_id'])
 
     correct = int(request_data['cor'])
-
+    sensitivity = int(request_data['sensitivity'])
 
     now = datetime.today()
     today_date = now.strftime("%Y-%m-%d")
@@ -690,39 +690,39 @@ def update_violation_for_verify():
             }]
             udate = e.strftime('%Y-%m-%d')
 
-        if correct == 1:
+        if correct == 1 and sensitivity == 1:
             x = main_function(x, udate)
             while len(x) > 0:
                 time.sleep(60)
                 x = main_function(x)
 
         cursor1 = cnx.cursor()
-        query1 = ("UPDATE `violation` SET `correct`='"+str(correct)+"', `violation_type_id`='"+str(updated_violation_type_id)+"', `street_id`='"+str(updated_street_id)+"' WHERE `violation_id`="+str(violation_id)+";")
+        query1 = ("UPDATE `violation` SET `correct`='"+str(correct)+"', `violation_type_id`='"+str(updated_violation_type_id)+"', `street_id`='"+str(updated_street_id)+"', sensitivity='"+str(sensitivity)+"' WHERE `violation_id`="+str(violation_id)+";")
         cursor1.execute(query1)
         cnx.commit()
         cursor1.close()
 
         cursor = cnx.cursor()
         if updated_violation_type_id != prev_violation_type_id and updated_street_id != prev_street_id:
-            query = ("INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('"+str(user_id)+"','"+str(violation_id)+"','"+str(prev_violation_type_id)+"','"+str(updated_violation_type_id)+"','"+str(prev_street_id)+"','"+str(updated_street_id)+"','"+str(correct)+"','"+today_date+"')")
+            query = ("INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('"+str(user_id)+"','"+str(violation_id)+"','"+str(prev_violation_type_id)+"','"+str(updated_violation_type_id)+"','"+str(prev_street_id)+"','"+str(updated_street_id)+"','"+str(correct)+"','"+str(sensitivity)+"',0,0,'"+today_date+"')")
         elif updated_violation_type_id != prev_violation_type_id and updated_street_id == prev_street_id:
             query = (
-                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('" + str(
                     user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
                     updated_violation_type_id) + "','" + str(prev_street_id) + "','" + str(0) + "','" + str(
-                    correct) + "','" + today_date + "')")
+                    correct) + "','"+str(sensitivity)+"',0,0,'" + today_date + "')")
         elif updated_violation_type_id == prev_violation_type_id and updated_street_id != prev_street_id:
             query = (
-                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                        "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('" + str(
                     user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
                     0) + "','" + str(prev_street_id) + "','" + str(updated_street_id) + "','" + str(
-                    correct) + "','" + today_date + "')")
+                    correct) + "','"+str(sensitivity)+"',0,0,'" + today_date + "')")
         else:
             query = (
-                    "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`, `entry_date`) VALUES ('" + str(
+                    "INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('" + str(
                 user_id) + "','" + str(violation_id) + "','" + str(prev_violation_type_id) + "','" + str(
                 0) + "','" + str(prev_street_id) + "','" + str(0) + "','" + str(
-                correct) + "','" + today_date + "')")
+                correct) + "','"+str(sensitivity)+"',0,0,'" + today_date + "')")
         cursor.execute(query)
         cnx.commit()
         cursor.close()
@@ -755,6 +755,7 @@ def get_single_violation_Verify(violation_id):
             "current_status": "Not Reported",
             "new_violation_type_id": 0,
             "new_street_id": 0,
+            "sensitivity": -1
         }
     cnx = db_connection()
     cursor = cnx.cursor()
@@ -784,7 +785,7 @@ def get_single_violation_Verify(violation_id):
 
             "new_violation_type_id": 0,
             "new_street_id": 0,
-
+            "sensitivity": -1
         }
         print(m)
     cursor.close()
@@ -797,12 +798,14 @@ def get_user_activity(userid):
     data = []
     cnx = db_connection()
     cursor = cnx.cursor()
-    query = ("SELECT `log_id`, `violation_id`, m1.violationname, m2.violationname, s1.streetname, s2.streetname, `correct_incorrect`, `entry_date` FROM `user_log` INNER JOIN `violation_type` AS m1 ON m1.`violationtypeid` = `user_log`.`prev_violation` INNER JOIN `violation_type` AS m2 ON m2.`violationtypeid` = `user_log`.`updated_violation` INNER JOIN `street` AS s1 ON s1.`streetid` = `user_log`.`prev_street` INNER JOIN `street` AS s2 ON s2.`streetid` = `user_log`.`updated_street` WHERE `user_id` = "+str(userid)+" Order BY log_id DESC;")
+    query = ("SELECT `log_id`, `violation_id`, m1.violationname, m2.violationname, s1.streetname, s2.streetname, `correct_incorrect`, `entry_date`,`sensitivity`,`duplicate_main_id`,`duplicated` FROM `user_log` INNER JOIN `violation_type` AS m1 ON m1.`violationtypeid` = `user_log`.`prev_violation` INNER JOIN `violation_type` AS m2 ON m2.`violationtypeid` = `user_log`.`updated_violation` INNER JOIN `street` AS s1 ON s1.`streetid` = `user_log`.`prev_street` INNER JOIN `street` AS s2 ON s2.`streetid` = `user_log`.`updated_street` WHERE `user_id` = "+str(userid)+" Order BY log_id DESC;")
     cursor.execute(query)
-    for a, b, c, d, e, f, g, h in cursor:
+    for a, b, c, d, e, f, g, h, i, j, k in cursor:
         cor = "Correct"
         if g == 0:
             cor = "Incorrect"
+        elif g == -1:
+            cor = "-"
         if c == 'None':
             c = '-'
         if d == 'None':
@@ -811,6 +814,21 @@ def get_user_activity(userid):
             e = '-'
         if f == 'None':
             f = '-'
+        if int(i)==0:
+            i = '-'
+        elif int(i) == 1:
+            i = 'High'
+        else:
+            i = 'Low'
+
+        if int(j) == 0:
+            j = '-'
+        if int(k) == 0:
+            k = '-'
+        elif int(k) == 1:
+            k = 'Duplicated'
+        else:
+            k = 'Not Duplicated'
         data.append({
             "log_id": a,
             "violation_id": b,
@@ -819,11 +837,14 @@ def get_user_activity(userid):
             "prev_street": e,
             "updated_street": f,
             "cor": cor,
+            "sensitivity": i,
+            "main_id": j,
+            "duplicated": k,
             "entry_date": h
         })
     cursor.close()
     cnx.close()
-    return {'activity':data}
+    return {'activity': data}
 
 
 @app.route('/get_all_violation')
@@ -881,19 +902,21 @@ def get_all_duplicate_violation():
     cursor.execute(query)
 
     for a, b, c, d, e, f, g, h, i in cursor:
-
-        violation_table_data.append({
-            "violation_id": a,
-            "violation_type_id": b,
-            "violation_name": c,
-            "streetid": d,
-            "street_name": e,
-            "violation_date": f.strftime('%b %d, %Y'),
-            "violation_date_format": f.strftime('%Y-%m-%d'),
-            "violation_time": g.strftime('%H:%M'),
-            "device_id": h,
-            "super_violation_id": i,
-        })
+        temp = i.split(',')
+        for lk in temp:
+            if int(lk) != 0:
+                violation_table_data.append({
+                    "violation_id": a,
+                    "violation_type_id": b,
+                    "violation_name": c,
+                    "streetid": d,
+                    "street_name": e,
+                    "violation_date": f.strftime('%b %d, %Y'),
+                    "violation_date_format": f.strftime('%Y-%m-%d'),
+                    "violation_time": g.strftime('%H:%M'),
+                    "device_id": h,
+                    "super_violation_id": int(lk),
+                })
 
     pages = math.floor(len(violation_table_data) / 10)
     if not (len(violation_table_data) % 10 == 0):
@@ -979,14 +1002,38 @@ def get_single_violation_duplicate(violation_id, main_id):
     return violation_table_data
 
 
-@app.route('/update_duplicate/<violation_id>/<duplicate>')
-def update_duplicate(violation_id, duplicate):
+@app.route('/update_duplicate/<violation_id>/<main_id>/<duplicate>/<user_id>')
+def update_duplicate(violation_id, main_id, duplicate, user_id):
+    now = datetime.today()
+    today_date = now.strftime("%Y-%m-%d")
     try:
         if int(duplicate) == 0:
             cnx = db_connection()
+            temp = []
+            cursor2 = cnx.cursor()
+            query2 = (
+                        "SELECT  `violation_id`,`super_violation_id` FROM `violation` WHERE `violation_id`='" + violation_id + "';")
+            cursor2.execute(query2)
+            for a, b in cursor2:
+                temp = b.split(',')
+            cursor2.close()
+            super_ids = "0"
+            for asw in temp:
+                if int(asw) != 0 and int(main_id) != int(asw):
+                    super_ids = super_ids+','+str(asw)
+            query1 = ""
+            if super_ids == "0":
+                query1 = "UPDATE `violation` SET `correct`='-1',`super_violation_id`='0' WHERE `violation_id`='"+violation_id+"';"
+            else:
+
+                query1 ="UPDATE `violation` SET `super_violation_id`='"+super_ids+"' WHERE `violation_id`='" + violation_id + "';"
+
             cursor1 = cnx.cursor()
-            query1 = ("UPDATE `violation` SET `correct`='-1',`super_violation_id`='0' WHERE `violation_id`='"+violation_id+"'")
+            query = ("INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('" + str(
+                user_id) + "','" + str(violation_id) + "','0','0','0','0','-1','0','" + str(
+                main_id) + "',-1,'" + today_date + "');")
             cursor1.execute(query1)
+            cursor1.execute(query)
             cnx.commit()
             cursor1.close()
             cnx.close()
@@ -994,14 +1041,48 @@ def update_duplicate(violation_id, duplicate):
             cnx = db_connection()
             cursor1 = cnx.cursor()
             query1 = (
-                        "UPDATE `violation` SET `correct`='2' WHERE `violation_id`='" + violation_id + "'")
+                        "UPDATE `violation` SET `correct`='2',`super_violation_id`='"+str(main_id)+"' WHERE `violation_id`='" + str(violation_id) + "';")
             cursor1.execute(query1)
+            cnx.commit()
+            query3 = ("INSERT INTO `user_log`( `user_id`, `violation_id`, `prev_violation`, `updated_violation`, `prev_street`, `updated_street`, `correct_incorrect`,`sensitivity`, `duplicate_main_id`, `duplicated`, `entry_date`) VALUES ('" + str(
+                user_id) + "','" + str(violation_id) + "','0','0','0','0','-1','0','" + str(
+                main_id) + "',1,'" + today_date + "');")
+            cursor1.execute(query3)
             cnx.commit()
             cursor1.close()
             cnx.close()
         return {'result': 1}
-    except:
+    except Exception as e:
+        print(e)
         return {'result': 0}
+
+
+@app.route('/user_login', methods = ['POST'])
+def user_login():
+    request_data = request.get_json()
+    user_login = {
+        "userid": 0,
+        "position": ""
+    }
+    username = str(request_data['username'])
+    pwd = str(request_data['pwd'])
+
+    cnx = db_connection()
+
+    # #############################33
+    cursor = cnx.cursor()
+    query = ("SELECT `user_id`, `position` FROM `users` WHERE `username`='"+username+"' AND `pwd`='"+pwd+"';")
+    cursor.execute(query)
+    for a, b in cursor:
+        user_login= {
+            "userid": int(a),
+            "position": b
+        }
+
+    cursor.close()
+    cnx.close()
+    return user_login
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=1244)
