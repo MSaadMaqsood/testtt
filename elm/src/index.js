@@ -12,6 +12,7 @@ import UserActivity from "./pages/verifier/user_activity/user_activity";
 import AllViolations from "./pages/allViolations/AllViolations";
 import DuplicatePage from "./pages/duplicatePage/duplicatePage";
 import Exe_Dashboard from "./pages/executive/dashboard/exe_dashboard";
+import Exe_AllViolations from "./pages/executive/allViolations/exe_allviolation";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -46,6 +47,10 @@ root.render(
           <Route
             path="exe_dashboard"
             element={<Exe_Dashboard server={server} />}
+          />
+          <Route
+            path="exe_allviolations"
+            element={<Exe_AllViolations server={server} />}
           />
         </Route>
       </Routes>

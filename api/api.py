@@ -11,6 +11,7 @@ from collections import Counter
 from upload_api_03 import *
 import cv2
 import base64
+from ApiCallCombined_used import *
 from db import *
 
 
@@ -695,6 +696,7 @@ def update_violation_for_verify():
             while len(x) > 0:
                 time.sleep(60)
                 x = main_function(x)
+            apicallcombined_used(str(violation_id))
 
         cursor1 = cnx.cursor()
         query1 = ("UPDATE `violation` SET `correct`='"+str(correct)+"', `violation_type_id`='"+str(updated_violation_type_id)+"', `street_id`='"+str(updated_street_id)+"', sensitivity='"+str(sensitivity)+"' WHERE `violation_id`="+str(violation_id)+";")
@@ -854,10 +856,13 @@ def get_all_violation():
 
     cnx = db_connection()
     cursor = cnx.cursor()
-    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.violation_date, violation.violation_time, violation.correct, violation.device_id FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.correct != -2 and violation.correct != 2 ORDER BY violation.violation_id DESC;")
+    query = ("SELECT violation.violation_id, violation.violation_type_id, violation_type.violationname, violation.street_id, street.streetname, violation.accurate, violation.risk, violation.violation_date, violation.violation_time, violation.correct, violation.device_id, violation.action_taken FROM violation INNER JOIN violation_type ON violation_type.violationtypeid = violation.violation_type_id INNER JOIN street ON street.streetid = violation.street_id WHERE violation.correct != -2 and violation.correct != 2 ORDER BY violation.violation_id DESC;")
     cursor.execute(query)
 
-    for a, b, c, d, e, f, g, h, i, j, k in cursor:
+    for a, b, c, d, e, f, g, h, i, j, k, l in cursor:
+        cs = "Not Reported"
+        if l == 1:
+            cs = "Reported"
         str = "Correct"
         if j == 0:
             str = "Incorrect"
@@ -877,7 +882,8 @@ def get_all_violation():
             "violation_time": i.strftime('%H:%M'),
 
             "cor": str,
-            "dev_id": k
+            "dev_id": k,
+            "Operation_Status": cs
         })
 
     pages = math.floor(len(violation_table_data) / 10)
@@ -1051,6 +1057,7 @@ def update_duplicate(violation_id, main_id, duplicate, user_id):
             cnx.commit()
             cursor1.close()
             cnx.close()
+            apicallcombined_used(str(main_id))
         return {'result': 1}
     except Exception as e:
         print(e)
