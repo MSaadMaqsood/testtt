@@ -98,9 +98,9 @@ export default class Verifier extends Component {
       <TopNavbar />
       <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
       <div className="verifier_cases_details_table">
-      <h2><u>User Information Table</u></h2>
+      <center> <h2>User Information Table</h2></center>
         
-       <br />
+       <hr />
        <div style={{display:"flex",flexDirection:"row", paddingRight:"50px"}}>
             <div class="input-group mb-3"  style={{width:"300px",marginLeft:"10px"}}>
                 <span class="input-group-text" id="basic-addon1">Full name </span>

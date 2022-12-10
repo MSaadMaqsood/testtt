@@ -70,8 +70,8 @@ export default class UserActivity extends Component {
             <TopNavbar />
             <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
             <div className="verifier_cases_details_table">
-            <h2><u>{("User Activity Table")}</u></h2>
-            <br />
+            <center><h2>User Activity Table</h2></center>
+            <hr />
                 <div class="row">
                 <div class="table-responsive ">
             <table class="table table-striped table-hover table-bordered">

@@ -20,11 +20,10 @@ class Dashboard extends Component {
       tree_map: {'line':[],'circle':[]},
       render: true,
     };
-    console.log(this.props.server);
+    
     this.GetData = this.GetData.bind(this);
    
     this.GetData();
-    console.log(sessionStorage.getItem("user_id"));
   }
   // componentDidMount() {
   //   setTimeout(

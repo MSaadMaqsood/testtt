@@ -122,6 +122,9 @@ export default class AllViolations extends Component {
           if (response.data.result === 1) {
             alert("Violation updated!");
             window.location.reload(false);
+          }else if (response.data.result === 2) {
+            alert("Violation updated as Duplicated!");
+            window.location.reload(false);
           } else if (response.data.result === 0) {
             alert("Violation updated Failed! Refresh Page");
           }
@@ -343,6 +346,16 @@ export default class AllViolations extends Component {
             marginRight: "20px",
           }}
         >
+          <center>
+          <h2 style={{
+            marginTop:"20px"
+          }}>
+            
+            All Violations List
+            
+          </h2>
+          </center>
+          <hr />
           <div className="verifier_cases_details_table">
             <div
               style={{

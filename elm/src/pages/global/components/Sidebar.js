@@ -23,6 +23,8 @@ import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import CloudIcon from "@material-ui/icons/Cloud";
 import CodeIcon from "@material-ui/icons/Code";
+import BackupTableIcon from '@mui/icons-material/BackupTable';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { ListNested } from "react-bootstrap-icons";
 
 const drawerWidth = 240;
@@ -175,7 +177,7 @@ export default function MiniDrawer() {
                 window.location.href = "/violation/1";
               }}
             >
-              <ListNested />
+              <FilterListIcon />
             </ListItemIcon>
             <ListItemText
               primary="Streets"
@@ -205,7 +207,7 @@ export default function MiniDrawer() {
                 window.location.href = "/duplicatepage";
               }}
             >
-              <DescriptionIcon />
+              <BackupTableIcon />
             </ListItemIcon>
             <ListItemText
               primary="Duplicate Violations"

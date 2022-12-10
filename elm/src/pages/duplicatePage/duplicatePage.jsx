@@ -295,6 +295,16 @@ export default class DuplicatePage extends Component {
             marginRight: "20px",
           }}
         >
+           <center>
+          <h2 style={{
+            marginTop:"20px"
+          }}>
+            
+            Duplicate Violations List
+            
+          </h2>
+          </center>
+          <hr />
           <div className="verifier_cases_details_table">
             <div
               style={{

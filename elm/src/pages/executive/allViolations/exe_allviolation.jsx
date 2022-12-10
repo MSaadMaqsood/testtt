@@ -344,6 +344,16 @@ export default class Exe_AllViolations extends Component {
             marginRight: "20px",
           }}
         >
+           <center>
+          <h2 style={{
+            marginTop:"20px"
+          }}>
+            
+            All Violations List
+            
+          </h2>
+          </center>
+          <hr />
           <div className="verifier_cases_details_table">
             <div
               style={{
