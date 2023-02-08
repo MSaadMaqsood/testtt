@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import "../../global/style/style.css";
+import "../../../global/style/style.css";
 import { Navigate } from "react-router-dom";
-import TopNavbar from "../../global/components/navbar";
-import MiniDrawer from "../../global/components/Sidebar";
+import TopNavbar from "../../../global/components/navbar";
+import Exe_MiniDrawer from "../../../global/components/exe_Sidebar";
 import { Button, Modal, Input } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
-import ModalMap from "../../global/components/ModelMap";
-export default class UserActivity extends Component {
+import ModalMap from "../../../global/components/ModelMap";
+export default class ViewUserLogActivity extends Component {
   constructor(props) {
     super(props);
     var url = window.location.href;
@@ -66,7 +66,7 @@ export default class UserActivity extends Component {
   render() {
     return(
         <div>
-            <MiniDrawer />
+            <Exe_MiniDrawer />
             <TopNavbar />
             <Card className="card_bg" style={{marginLeft:"7%",marginTop:"-5%",paddingRight:"20px",marginRight:"20px"}}>
             <div className="verifier_cases_details_table">

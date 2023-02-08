@@ -6,7 +6,7 @@ import Exe_MiniDrawer from "../../global/components/exe_Sidebar";
 import Card from "react-bootstrap/Card";
 import { Button, Modal, Input } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import ModalMap from "../../violation/ModalMap";
+import ModalMap from "../../global/components/ModelMap";
 import { Pages } from "@material-ui/icons";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -170,7 +170,7 @@ export default class Exe_AllViolations extends Component {
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_all_violation")
+      .get(this.props.server + "/get_all_violation_exe")
       .then(function (response) {
         com.setState({
           all_data: response.data.myData,

@@ -6,7 +6,7 @@ import MiniDrawer from "../global/components/Sidebar";
 import Card from "react-bootstrap/Card";
 import { Button, Modal, Input } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import ModalMap from "../violation/ModalMap";
+import ModalMap from "../global/components/ModelMap";
 import { Pages } from "@material-ui/icons";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -20,13 +20,20 @@ import RadioGroup from "@mui/material/RadioGroup";
 export default class DuplicatePage extends Component {
   constructor(props) {
     super(props);
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const pagenum_ = parseInt(urlParams.get('p'));
+    const vio_type_ = parseInt(urlParams.get('v'));
+    const vio_type_name_ = (urlParams.get('vn'));
+    const devid_ = (urlParams.get('d'));
+    const date_ = (urlParams.get('da'));
 
     this.state = {
       all_data: [],
       all_pages: 0,
       show_data: [],
       show_pages: 0,
-      currentPage: 1,
+      currentPage: pagenum_,
 
       vio_type_list: [{ name: "000000" }],
       street_list: [],
@@ -72,9 +79,11 @@ export default class DuplicatePage extends Component {
       }
     },
       filter_table: {
-        violation_type: -5,
-        device_id: "",
-        filter_date: "",
+        violation_type: vio_type_,
+        violation_type_name:vio_type_name_,
+        device_id: devid_,
+       
+        filter_date: date_,
       },
     };
     this.get_all_violations = this.get_all_violations.bind(this);
@@ -93,7 +102,7 @@ export default class DuplicatePage extends Component {
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
 
-    this.get_all_violations();
+    this.get_all_violations(vio_type_,devid_,date_);
   }
   showModal = (para, main_vio) => (e) => {
     const com = this;
@@ -111,13 +120,17 @@ export default class DuplicatePage extends Component {
   update_violation_duplicate = (para,main_id, duplicate) => (e) => {
     const com = this;
     const server = this.props.server;
+    this.setState({show_uploading:true});
     const axios = require("axios").default;
     axios
       .get(this.props.server + "/update_duplicate/"+para+"/"+main_id+"/"+duplicate+"/"+sessionStorage.getItem("user_id"))
       .then(function (response) {
         if (response.data.result === 1) {
           alert("Violation updated! Refresh Page");
-          window.location.reload(false);
+          let datef = com.state.filter_table.filter_date;
+    
+          let valpara = "p="+com.state.currentPage+"&v="+com.state.filter_table.violation_type+"&vn="+com.state.filter_table.violation_type_name+"&d="+com.state.filter_table.device_id+"&da="+datef;
+          window.location.href = "/duplicatepage?"+valpara;
         } else if (response.data.result === 0) {
           alert("Violation updated Failed! Refresh Page");
         }
@@ -139,13 +152,23 @@ export default class DuplicatePage extends Component {
     this.setState({ show_model: false });
   };
   handleChange_P = (e, value) => {
-    this.setState({ currentPage: value });
+    let datef = this.state.filter_table.filter_date;
+    
+    let valpara = "p="+value+"&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/duplicatepage?"+valpara;
+ 
   };
-  get_all_violations() {
+  get_all_violations(vio_type_,devid_,date_) {
     const com = this;
+    let v = "";
+    if(devid_==""){
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/0/"+date_;
+    }else{
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/"+devid_+"/"+date_;
+    }
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_all_duplicate_violation")
+      .get(this.props.server + "/get_all_duplicate_violation"+v)
       .then(function (response) {
         com.setState({
           all_data: response.data.myData,
@@ -159,73 +182,21 @@ export default class DuplicatePage extends Component {
   }
 
   show_filter() {
-    let filter_data = [];
-    if (this.state.filter_table.violation_type == -5) {
-      filter_data = this.state.all_data;
-    } else {
-      this.state.all_data.forEach((element) => {
-        if (
-          element.violation_type_id == this.state.filter_table.violation_type
-        ) {
-          filter_data.push(element);
-        }
-      });
-    }
-    if (this.state.filter_table.device_id == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.device_id == this.state.filter_table.device_id) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-
+    let datef = this.state.filter_table.filter_date;
     
-    if (this.state.filter_table.filter_date == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (
-          element.violation_date_format == this.state.filter_table.filter_date
-        ) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-    var cpages = Math.floor(filter_data.length / 10);
-    if (filter_data.length % 10 == 0) {
-    } else {
-      cpages = cpages + 1;
-    }
-    this.setState({
-      show_data: filter_data,
-      show_pages: cpages,
-      currentPage: 1,
-    });
+    let valpara = "p=1&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/duplicatepage?"+valpara;
   }
 
   clear_filter() {
-    const data = this.state.all_data;
-    const pages = this.state.all_pages;
-
-    this.setState({
-      show_data: data,
-      show_pages: pages,
-      currentPage: 1,
-      filter_table: {
-        violation_type: -5,
-        device_id: "",
-        Correct: "",
-        filter_date: "",
-      },
-    });
+    let valpara = "p="+this.state.currentPage+"&v=-5&vn=&d=&da=-5";
+    window.location.href = "/duplicatepage?"+valpara;
   }
   change_violation_type = (e) => {
     let xx = this.state.filter_table;
     xx.violation_type = parseInt(e.target.value);
+    xx.violation_type_name = e.target[e.target.selectedIndex].text;
+    
     this.setState({
       filter_table: xx,
     });
@@ -250,18 +221,14 @@ export default class DuplicatePage extends Component {
 
   render() {
     const calll = () => {
-      const hh = this.state.show_data.slice(
-        (this.state.currentPage - 1) * 10,
-        (this.state.currentPage - 1) * 10 + 10
-      );
-      const rows = hh.map((x, index) => {
+      const rows = this.state.show_data.map((x, index) => {
         return (
           <tr>
             <td>{x.violation_id}</td>
             <td>{x.super_violation_id}</td>
             <td>{x.violation_name}</td>
             <td>{x.street_name}</td>
-            
+            <td>{x.city}</td>
             <td>
               {x.violation_date} at {x.violation_time}
             </td>
@@ -322,7 +289,7 @@ export default class DuplicatePage extends Component {
                   aria-label="Default select example"
                   onChange={this.change_violation_type}
                 >
-                  <option value="-5"></option>
+                  <option value={this.state.filter_table.violation_type}>{this.state.filter_table.violation_type_name}</option>
                   {this.state.vio_type_list.map((O) => (
                     <option value={O.vio_id}>{O.name}</option>
                   ))}
@@ -388,7 +355,9 @@ export default class DuplicatePage extends Component {
                       </th>
                       <th style={{ fontFamily: "Verdana" }}>Type </th>
                       <th style={{ fontFamily: "Verdana" }}>Street </th>
-                      <th style={{ fontFamily: "Verdana" }}>Date && Time</th>
+                      <th style={{ fontFamily: "Verdana" }}>City </th>
+
+                      <th style={{ fontFamily: "Verdana" }}>Date, Time</th>
                       <th style={{ fontFamily: "Verdana" }}>Device ID</th>
                       <th></th>
                     </tr>
@@ -732,6 +701,7 @@ export default class DuplicatePage extends Component {
                       </div> */}
                       </Card>
                     </div>
+                    <center>{this.state.show_uploading && ("Updating Wait..........")}</center>
                     <div
                       className="verifier_action_buttons"
                       style={{ marginLeft: "35%", marginTop: "25px" }}
@@ -751,6 +721,7 @@ export default class DuplicatePage extends Component {
                         type="button"
                         class="btnn"
                         onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id,this.state.model_show_violation_info.main.violation_id, 1)}
+                        disabled={this.state.show_uploading}
                       >
                         Yes, it's a duplicate
                       </button>
@@ -758,6 +729,7 @@ export default class DuplicatePage extends Component {
                         type="button"
                         class="btnn"
                         onClick={this.update_violation_duplicate(this.state.model_show_violation_info.vio.violation_id,this.state.model_show_violation_info.main.violation_id, 0)}
+                        disabled={this.state.show_uploading}
                       >
                         No, it's not
                       </button>
@@ -765,11 +737,7 @@ export default class DuplicatePage extends Component {
                   </div>
                 </div>
 
-                <div style={{ marginLeft: "40%", marginTop: "10px" }}>
-                  <label>
-                    {this.state.show_uploading && "Updating Wait......"}
-                  </label>
-                </div>
+                
 
                 {/* 
             <img
@@ -794,6 +762,7 @@ export default class DuplicatePage extends Component {
               <Pagination
                 count={this.state.show_pages}
                 onChange={this.handleChange_P}
+                defaultPage={this.state.currentPage}
               />
             </Stack>
           </div>

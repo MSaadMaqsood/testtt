@@ -189,7 +189,7 @@ export default function MiniDrawer() {
           <ListItem button>
             <ListItemIcon
               onClick={() => {
-                window.location.href = "/allviolations";
+                window.location.href = "/allviolations?p=1&v=-5&vn=&c=-5&d=&da=-5";
               }}
             >
               <DescriptionIcon />
@@ -197,14 +197,14 @@ export default function MiniDrawer() {
             <ListItemText
               primary="All Violations"
               onClick={() => {
-                window.location.href = "/allviolations";
+                window.location.href = "/allviolations?p=1&v=-5&vn=&c=-5&d=&da=-5";
               }}
             />
           </ListItem>
           <ListItem button>
             <ListItemIcon
               onClick={() => {
-                window.location.href = "/duplicatepage";
+                window.location.href = "/duplicatepage?p=1&v=-5&vn=&d=&da=-5";
               }}
             >
               <BackupTableIcon />
@@ -212,11 +212,11 @@ export default function MiniDrawer() {
             <ListItemText
               primary="Duplicate Violations"
               onClick={() => {
-                window.location.href = "/duplicatepage";
+                window.location.href = "/duplicatepage?p=1&v=-5&vn=&d=&da=-5";
               }}
             />
           </ListItem>
-          <ListItem button>
+          {/* <ListItem button>
             <ListItemIcon
               onClick={() => {
                 window.location.href = "/verifier";
@@ -230,7 +230,7 @@ export default function MiniDrawer() {
                 window.location.href = "/verifier";
               }}
             />
-          </ListItem>
+          </ListItem> */}
           {/* <ListItem button>
             <ListItemIcon>
               <CodeIcon  onClick={() =>{  window.location.href ="/map_api";  }}/>

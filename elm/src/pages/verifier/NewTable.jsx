@@ -6,7 +6,7 @@ import "./index.css";
 import { Button, Modal, Input } from "react-bootstrap";
 //import "./index.css";
 // import Button from "react-bootstrap/Button";
-import ModalMap from "../violation/ModalMap";
+import ModalMap from "../global/components/ModelMap";
 import Form from "react-bootstrap/Form";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";

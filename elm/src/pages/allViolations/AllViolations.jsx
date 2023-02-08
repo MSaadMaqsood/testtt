@@ -6,7 +6,7 @@ import MiniDrawer from "../global/components/Sidebar";
 import Card from "react-bootstrap/Card";
 import { Button, Modal, Input } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import ModalMap from "../violation/ModalMap";
+import ModalMap from "../global/components/ModelMap";
 import { Pages } from "@material-ui/icons";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -15,17 +15,25 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import RadioGroup from "@mui/material/RadioGroup";
-
+import {base64DecToArr} from './base64_decode.js';
 export default class AllViolations extends Component {
   constructor(props) {
     super(props);
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const pagenum_ = parseInt(urlParams.get('p'));
+    const vio_type_ = parseInt(urlParams.get('v'));
+    const vio_type_name_ = (urlParams.get('vn'));
+    const correct_ = (urlParams.get('c'));
+    const devid_ = (urlParams.get('d'));
+    const date_ = (urlParams.get('da'));
 
     this.state = {
       all_data: [],
       all_pages: 0,
       show_data: [],
       show_pages: 0,
-      currentPage: 1,
+      currentPage: pagenum_,
 
       vio_type_list: [{ name: "000000" }],
       street_list: [],
@@ -52,13 +60,15 @@ export default class AllViolations extends Component {
         sensitivity: -1
       },
       filter_table: {
-        violation_type: -5,
-        device_id: "",
-        Correct: "",
-        filter_date: "",
+        violation_type: vio_type_,
+        violation_type_name:vio_type_name_,
+        device_id: devid_,
+        Correct: correct_,
+        filter_date: date_,
       },
     };
     this.get_all_violations = this.get_all_violations.bind(this);
+    this.get_csv_all_violation = this.get_csv_all_violation.bind(this);
     this.show_filter = this.show_filter.bind(this);
     this.clear_filter = this.clear_filter.bind(this);
     this.change_violation_type = this.change_violation_type.bind(this);
@@ -72,7 +82,7 @@ export default class AllViolations extends Component {
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
     this.change_vio_sensitivity = this.change_vio_sensitivity.bind(this);
-    this.get_all_violations();
+    this.get_all_violations(vio_type_,correct_,devid_,date_);
   }
   showModal = (para) => (e) => {
     const com = this;
@@ -105,7 +115,7 @@ export default class AllViolations extends Component {
     else {
       const server = this.props.server;
       const axios = require("axios").default;
-
+      
       this.setState({ show_uploading: true });
       axios
         .post(this.props.server + "/update_violation_for_verify", {
@@ -121,10 +131,16 @@ export default class AllViolations extends Component {
           com.setState({ show_uploading: false });
           if (response.data.result === 1) {
             alert("Violation updated!");
-            window.location.reload(false);
+            let datef = com.state.filter_table.filter_date;
+    
+    let valpara = "p="+com.state.currentPage+"&v="+com.state.filter_table.violation_type+"&vn="+com.state.filter_table.violation_type_name+"&c="+com.state.filter_table.Correct+"&d="+com.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/allviolations?"+valpara;
           }else if (response.data.result === 2) {
             alert("Violation updated as Duplicated!");
-            window.location.reload(false);
+            let datef = com.state.filter_table.filter_date;
+    
+    let valpara = "p="+com.state.currentPage+"&v="+com.state.filter_table.violation_type+"&vn="+com.state.filter_table.violation_type_name+"&c="+com.state.filter_table.Correct+"&d="+com.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/allviolations?"+valpara;
           } else if (response.data.result === 0) {
             alert("Violation updated Failed! Refresh Page");
           }
@@ -142,12 +158,16 @@ export default class AllViolations extends Component {
         updated_vio_id:
           this.state.model_show_violation_info.new_violation_type_id,
         updated_street_id: this.state.model_show_violation_info.new_street_id,
-        cor: 0,
+          cor: 0,
+          sensitivity: this.state.model_show_violation_info.sensitivity,
       })
       .then(function (response) {
         if (response.data.result === 1) {
           alert("Violation updated! Refresh Page");
-          window.location.reload(false);
+          let datef = com.state.filter_table.filter_date;
+    
+    let valpara = "p="+com.state.currentPage+"&v="+com.state.filter_table.violation_type+"&vn="+com.state.filter_table.violation_type_name+"&c="+com.state.filter_table.Correct+"&d="+com.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/allviolations?"+valpara;
         } else if (response.data.result === 0) {
           alert("Violation updated Failed! Refresh Page");
         }
@@ -167,13 +187,23 @@ export default class AllViolations extends Component {
     this.setState({ show_model: false });
   };
   handleChange_P = (e, value) => {
-    this.setState({ currentPage: value });
+    //this.setState({ currentPage: value });
+    let datef = this.state.filter_table.filter_date;
+    
+    let valpara = "p="+value+"&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&c="+this.state.filter_table.Correct+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/allviolations?"+valpara;
   };
-  get_all_violations() {
+  get_all_violations(vio_type_,correct_,devid_,date_) {
+    let v = "";
+    if(devid_==""){
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/"+correct_+"/0/"+date_;
+    }else{
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/"+correct_+"/"+devid_+"/"+date_;
+    }
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_all_violation")
+      .get(this.props.server + "/get_all_violation"+v)
       .then(function (response) {
         com.setState({
           all_data: response.data.myData,
@@ -183,86 +213,52 @@ export default class AllViolations extends Component {
           vio_type_list: response.data.vio,
           street_list: response.data.street_list,
         });
+        console.log(response.data.vio);
       });
   }
 
+get_csv_all_violation() {
+    let v = "";
+    if(this.state.filter_table.device_id==""){
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.filter_table.violation_type+"/"+this.state.filter_table.Correct+"/0/"+this.state.filter_table.filter_date;
+    }else{
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.filter_table.violation_type+"/"+this.state.filter_table.Correct+"/"+this.state.filter_table.device_id+"/"+this.state.filter_table.filter_date;
+    }
+    const com = this;
+    const axios = require("axios").default;
+    axios
+      .get(this.props.server + "/get_csv_all_violation"+v)
+      .then(function (response) {
+        
+        var bufferExcelFile = base64DecToArr( response.data.data[0] ).buffer;
+        const blobExcelFile = new Blob( [ bufferExcelFile ] );
+        const url = window.URL.createObjectURL( blobExcelFile );
+        const hiddenAnchor = document.createElement( "a" );
+        hiddenAnchor.style.display = "none";
+        hiddenAnchor.href = url;
+        hiddenAnchor.download = response.data.name;
+        document.body.appendChild( hiddenAnchor );
+        hiddenAnchor.click();
+        window.URL.revokeObjectURL( url );
+      });
+  }
   show_filter() {
-    let filter_data = [];
-    if (this.state.filter_table.violation_type == -5) {
-      filter_data = this.state.all_data;
-    } else {
-      this.state.all_data.forEach((element) => {
-        if (
-          element.violation_type_id == this.state.filter_table.violation_type
-        ) {
-          filter_data.push(element);
-        }
-      });
-    }
-    if (this.state.filter_table.device_id == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.dev_id == this.state.filter_table.device_id) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-
-    if (this.state.filter_table.Correct == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.cor == this.state.filter_table.Correct) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-    if (this.state.filter_table.filter_date == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (
-          element.violation_date_format == this.state.filter_table.filter_date
-        ) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-    var cpages = Math.floor(filter_data.length / 10);
-    if (filter_data.length % 10 == 0) {
-    } else {
-      cpages = cpages + 1;
-    }
-    this.setState({
-      show_data: filter_data,
-      show_pages: cpages,
-      currentPage: 1,
-    });
+    let datef = this.state.filter_table.filter_date;
+    
+    let valpara = "p=1&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&c="+this.state.filter_table.Correct+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/allviolations?"+valpara;
   }
 
   clear_filter() {
-    const data = this.state.all_data;
-    const pages = this.state.all_pages;
-
-    this.setState({
-      show_data: data,
-      show_pages: pages,
-      currentPage: 1,
-      filter_table: {
-        violation_type: -5,
-        device_id: "",
-        Correct: "",
-        filter_date: "",
-      },
-    });
+    
+    let valpara = "p="+this.state.currentPage+"&v=-5&vn="+"&c=-5&d=&da=-5";
+    window.location.href = "/allviolations?"+valpara;
   }
   change_violation_type = (e) => {
     let xx = this.state.filter_table;
     xx.violation_type = parseInt(e.target.value);
+    xx.violation_type_name = e.target[e.target.selectedIndex].text;
+    
     this.setState({
       filter_table: xx,
     });
@@ -300,16 +296,14 @@ export default class AllViolations extends Component {
 
   render() {
     const calll = () => {
-      const hh = this.state.show_data.slice(
-        (this.state.currentPage - 1) * 10,
-        (this.state.currentPage - 1) * 10 + 10
-      );
-      const rows = hh.map((x) => {
+      
+      const rows = this.state.show_data.map((x) => {
         return (
           <tr>
             <td>{x.violation_id}</td>
             <td>{x.violation_name}</td>
             <td>{x.street_name}</td>
+            <td>{x.city}</td>
             <td>{x.accurate}</td>
             <td>{x.risk}</td>
             <td>
@@ -332,7 +326,9 @@ export default class AllViolations extends Component {
       });
       return rows;
     };
-
+    const xyz = this.state.street_list.filter((i) => {
+      return i.city === this.state.model_show_violation_info.city
+  });
     return (
       <div>
         <MiniDrawer />
@@ -372,8 +368,9 @@ export default class AllViolations extends Component {
                   class="form-select"
                   aria-label="Default select example"
                   onChange={this.change_violation_type}
+                  
                 >
-                  <option value="-5"></option>
+                  <option value={this.state.filter_table.violation_type}>{this.state.filter_table.violation_type_name}</option>
                   {this.state.vio_type_list.map((O) => (
                     <option value={O.vio_id}>{O.name}</option>
                   ))}
@@ -391,11 +388,12 @@ export default class AllViolations extends Component {
                   class="form-select"
                   aria-label="Default select example"
                   onChange={this.change_correct_type}
+                  defaultValue= {this.state.filter_table.Correct}
                 >
                   <option value=""></option>
-                  <option value="Correct">Correct</option>
-                  <option value="Incorrect">Incorrect</option>
-                  <option value="Pending">Pending</option>
+                  <option value="1">Correct</option>
+                  <option value="0">Incorrect</option>
+                  <option value="-1">Pending</option>
                 </select>
               </div>
               <div
@@ -442,20 +440,29 @@ export default class AllViolations extends Component {
               >
                 Reset Filter{" "}
               </button>
+              <button
+                type="button"
+                class="btn btn-success mb-3"
+                onClick={() => {this.get_csv_all_violation();}}
+                style={{ width: "300px" }}
+              >
+                Get CSV{" "}
+              </button>
             </div>
             <div class="row" style={{ paddingRight: "50px" }}>
               <div class="table-responsive ">
                 <table class="table table-striped ">
                   <thead>
                     <tr>
-                      <th style={{ fontFamily: "Verdana" }}>Violation ID </th>
+                      <th style={{ fontFamily: "Verdana" }}>ID </th>
                       <th style={{ fontFamily: "Verdana" }}>Type </th>
                       <th style={{ fontFamily: "Verdana" }}>Street </th>
+                      <th style={{ fontFamily: "Verdana" }}>City </th>
                       <th style={{ fontFamily: "Verdana" }}>Accuracy</th>
                       <th style={{ fontFamily: "Verdana" }}>Risk</th>
-                      <th style={{ fontFamily: "Verdana" }}>Date && Time</th>
+                      <th style={{ fontFamily: "Verdana" }}>Date, Time</th>
                       <th style={{ fontFamily: "Verdana" }}>
-                        Correct/Incorrect
+                        Correct?
                       </th>
                       <th style={{ fontFamily: "Verdana" }}>Device ID</th>
                       <th></th>
@@ -558,7 +565,8 @@ export default class AllViolations extends Component {
                                     .street_name
                                 }
                               </option>
-                              {this.state.street_list.map((h) => (
+                              { 
+                              xyz.map((h) => (
                                 <option value={h.street_id}>
                                   {h.street_name}
                                 </option>
@@ -569,7 +577,15 @@ export default class AllViolations extends Component {
                       )}
                     </tr>
                   </table>
-
+                  <Form.Group className="mb-3">
+                          <Form.Label>City</Form.Label>
+                          <Form.Control
+                            placeholder={
+                              this.state.model_show_violation_info.city
+                            }
+                            disabled
+                          />
+                        </Form.Group>
                   <table className="model_table_">
                     <tr className="model_table_row">
                       <td style={{ width: "49%", paddingRight: "20px" }}>
@@ -690,6 +706,7 @@ export default class AllViolations extends Component {
                         type="button"
                         class="btnn"
                         onClick={this.update_violation_cor}
+                        disabled={this.state.show_uploading}
                       >
                         Correct
                       </button>
@@ -697,6 +714,7 @@ export default class AllViolations extends Component {
                         type="button"
                         class="btnn"
                         onClick={this.update_violation_incor}
+                        disabled={this.state.show_uploading}
                       >
                         Incorrect
                       </button>
@@ -763,6 +781,7 @@ export default class AllViolations extends Component {
               <Pagination
                 count={this.state.show_pages}
                 onChange={this.handleChange_P}
+                defaultPage={this.state.currentPage}
               />
             </Stack>
           </div>

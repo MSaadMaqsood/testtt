@@ -6,7 +6,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { XOctagon} from "react-bootstrap-icons";
-import ModalMap from "./ModalMap";
+import ModalMap from "../global/components/ModelMap";
 
 export default class Table extends Component {
   constructor(props) {

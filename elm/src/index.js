@@ -13,11 +13,13 @@ import AllViolations from "./pages/allViolations/AllViolations";
 import DuplicatePage from "./pages/duplicatePage/duplicatePage";
 import Exe_Dashboard from "./pages/executive/dashboard/exe_dashboard";
 import Exe_AllViolations from "./pages/executive/allViolations/exe_allviolation";
+import ViewUserLogActivity from "./pages/executive/usermanagement/view_user_log_activity/view_user_log_activity";
+import UserManagement from "./pages/executive/usermanagement/usermanagement";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const server = "http://67.205.163.34:1244";
-//const server = "http://127.0.0.1:1244";
+//const server = "http://67.205.163.34:1244";
+const server = "http://127.0.0.1:1244";
 root.render(
   <React.StrictMode>
     <BrowserRouter>
@@ -51,6 +53,14 @@ root.render(
           <Route
             path="exe_allviolations"
             element={<Exe_AllViolations server={server} />}
+          />
+          <Route
+            path="usermanagement"
+            element={<UserManagement server={server} />}
+          />
+          <Route
+            path="usermanagement/userlog/:id"
+            element={<ViewUserLogActivity server={server} />}
           />
         </Route>
       </Routes>

@@ -184,7 +184,21 @@ export default function Exe_MiniDrawer() {
               }}
             />
           </ListItem>
-         
+          <ListItem button>
+            <ListItemIcon
+              onClick={() => {
+                window.location.href = "/usermanagement";
+              }}
+            >
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="User Management"
+              onClick={() => {
+                window.location.href = "/usermanagement";
+              }}
+            />
+          </ListItem>
           
           {/* <ListItem button>
             <ListItemIcon>
