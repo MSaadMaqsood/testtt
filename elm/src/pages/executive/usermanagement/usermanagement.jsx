@@ -450,7 +450,7 @@ hide_edit_user_model(){
                       { Object.entries(this.state.list_of_cities).map(([k,v]) =>
                         <td>
                         <InputGroup  style={{width:"150px",padding:"5px"}}>
-                          <InputGroup.Checkbox name="group2" value={k} onChange={this.onChangeCitiesValue} disabled={this.state.add_new_user_form.position ==="Executive"} checked={this.state.add_new_user_form.cities[k] }
+                          <InputGroup.Checkbox name="group2" value={k} onChange={this.onChangeCitiesValue} checked={this.state.add_new_user_form.cities[k] }
                           />
                           <Form.Control placeholder={k} disabled/>
                         </InputGroup>
@@ -560,7 +560,7 @@ hide_edit_user_model(){
                       { Object.entries(this.state.list_of_cities).map(([k,v]) =>
                         <td>
                         <InputGroup  style={{width:"150px",padding:"5px"}}>
-                          <InputGroup.Checkbox name="group2" value={k} onChange={this.onChangeCitiesValue_edit_user} disabled={this.state.edit_user_form.position ==="Executive"} checked={this.state.edit_user_form.cities[k] }
+                          <InputGroup.Checkbox name="group2" value={k} onChange={this.onChangeCitiesValue_edit_user}  checked={this.state.edit_user_form.cities[k] }
                           />
                           <Form.Control placeholder={k} disabled/>
                         </InputGroup>

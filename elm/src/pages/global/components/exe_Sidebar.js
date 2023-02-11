@@ -172,7 +172,7 @@ export default function Exe_MiniDrawer() {
           <ListItem button>
             <ListItemIcon
               onClick={() => {
-                window.location.href = "/exe_allviolations";
+                window.location.href = "/exe_allviolations?p=1&v=-5&vn=&c=-5&d=&da=-5";
               }}
             >
               <DescriptionIcon />
@@ -180,7 +180,7 @@ export default function Exe_MiniDrawer() {
             <ListItemText
               primary="All Violations"
               onClick={() => {
-                window.location.href = "/exe_allviolations";
+                window.location.href = "/exe_allviolations?p=1&v=-5&vn=&c=-5&d=&da=-5";
               }}
             />
           </ListItem>

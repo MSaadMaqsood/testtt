@@ -19,13 +19,20 @@ import RadioGroup from "@mui/material/RadioGroup";
 export default class Exe_AllViolations extends Component {
   constructor(props) {
     super(props);
-
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const pagenum_ = parseInt(urlParams.get('p'));
+    const vio_type_ = parseInt(urlParams.get('v'));
+    const vio_type_name_ = (urlParams.get('vn'));
+    const correct_ = (urlParams.get('c'));
+    const devid_ = (urlParams.get('d'));
+    const date_ = (urlParams.get('da'));
     this.state = {
       all_data: [],
       all_pages: 0,
       show_data: [],
       show_pages: 0,
-      currentPage: 1,
+      currentPage: pagenum_,
 
       vio_type_list: [{ name: "000000" }],
       street_list: [],
@@ -52,10 +59,11 @@ export default class Exe_AllViolations extends Component {
         sensitivity: -1
       },
       filter_table: {
-        violation_type: -5,
-        device_id: "",
-        Correct: "",
-        filter_date: "",
+        violation_type: vio_type_,
+        violation_type_name:vio_type_name_,
+        device_id: devid_,
+        Correct: correct_,
+        filter_date: date_,
       },
     };
     this.get_all_violations = this.get_all_violations.bind(this);
@@ -72,7 +80,7 @@ export default class Exe_AllViolations extends Component {
     this.change_violation_type_vio = this.change_violation_type_vio.bind(this);
     this.change_street_vio = this.change_street_vio.bind(this);
     this.change_vio_sensitivity = this.change_vio_sensitivity.bind(this);
-    this.get_all_violations();
+    this.get_all_violations(vio_type_,correct_,devid_,date_);
   }
   showModal = (para) => (e) => {
     const com = this;
@@ -164,13 +172,23 @@ export default class Exe_AllViolations extends Component {
     this.setState({ show_model: false });
   };
   handleChange_P = (e, value) => {
-    this.setState({ currentPage: value });
+    let datef = this.state.filter_table.filter_date;
+    
+    let valpara = "p="+value+"&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&c="+this.state.filter_table.Correct+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/exe_allviolations?"+valpara;
+
   };
-  get_all_violations() {
+  get_all_violations(vio_type_,correct_,devid_,date_) {
+    let v = "";
+    if(devid_==""){
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/"+correct_+"/0/"+date_;
+    }else{
+      v = "/"+sessionStorage.getItem("user_id")+"/"+this.state.currentPage+"/"+vio_type_+"/"+correct_+"/"+devid_+"/"+date_;
+    }
     const com = this;
     const axios = require("axios").default;
     axios
-      .get(this.props.server + "/get_all_violation_exe")
+      .get(this.props.server + "/get_all_violation_exe"+v)
       .then(function (response) {
         com.setState({
           all_data: response.data.myData,
@@ -184,82 +202,21 @@ export default class Exe_AllViolations extends Component {
   }
 
   show_filter() {
-    let filter_data = [];
-    if (this.state.filter_table.violation_type == -5) {
-      filter_data = this.state.all_data;
-    } else {
-      this.state.all_data.forEach((element) => {
-        if (
-          element.violation_type_id == this.state.filter_table.violation_type
-        ) {
-          filter_data.push(element);
-        }
-      });
-    }
-    if (this.state.filter_table.device_id == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.dev_id == this.state.filter_table.device_id) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-
-    if (this.state.filter_table.Correct == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (element.cor == this.state.filter_table.Correct) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-    if (this.state.filter_table.filter_date == "") {
-    } else {
-      let tempx = [];
-      filter_data.forEach((element) => {
-        if (
-          element.violation_date_format == this.state.filter_table.filter_date
-        ) {
-          tempx.push(element);
-        }
-      });
-      filter_data = tempx;
-    }
-    var cpages = Math.floor(filter_data.length / 10);
-    if (filter_data.length % 10 == 0) {
-    } else {
-      cpages = cpages + 1;
-    }
-    this.setState({
-      show_data: filter_data,
-      show_pages: cpages,
-      currentPage: 1,
-    });
+    let datef = this.state.filter_table.filter_date;
+    
+    let valpara = "p=1&v="+this.state.filter_table.violation_type+"&vn="+this.state.filter_table.violation_type_name+"&c="+this.state.filter_table.Correct+"&d="+this.state.filter_table.device_id+"&da="+datef;
+    window.location.href = "/exe_allviolations?"+valpara;
   }
 
   clear_filter() {
-    const data = this.state.all_data;
-    const pages = this.state.all_pages;
-
-    this.setState({
-      show_data: data,
-      show_pages: pages,
-      currentPage: 1,
-      filter_table: {
-        violation_type: -5,
-        device_id: "",
-        Correct: "",
-        filter_date: "",
-      },
-    });
+    let valpara = "p="+this.state.currentPage+"&v=-5&vn="+"&c=-5&d=&da=-5";
+    window.location.href = "/exe_allviolations?"+valpara;
   }
   change_violation_type = (e) => {
     let xx = this.state.filter_table;
     xx.violation_type = parseInt(e.target.value);
+    xx.violation_type_name = e.target[e.target.selectedIndex].text;
+    
     this.setState({
       filter_table: xx,
     });
@@ -297,16 +254,13 @@ export default class Exe_AllViolations extends Component {
 
   render() {
     const calll = () => {
-      const hh = this.state.show_data.slice(
-        (this.state.currentPage - 1) * 10,
-        (this.state.currentPage - 1) * 10 + 10
-      );
-      const rows = hh.map((x) => {
+      const rows = this.state.show_data.map((x) => {
         return (
           <tr>
             <td>{x.violation_id}</td>
             <td>{x.violation_name}</td>
             <td>{x.street_name}</td>
+            <td>{x.city}</td>
             <td>{x.accurate}</td>
             <td>{x.risk}</td>
             <td>
@@ -371,7 +325,7 @@ export default class Exe_AllViolations extends Component {
                   aria-label="Default select example"
                   onChange={this.change_violation_type}
                 >
-                  <option value="-5"></option>
+                  <option value={this.state.filter_table.violation_type}>{this.state.filter_table.violation_type_name}</option>
                   {this.state.vio_type_list.map((O) => (
                     <option value={O.vio_id}>{O.name}</option>
                   ))}
@@ -389,6 +343,7 @@ export default class Exe_AllViolations extends Component {
                   class="form-select"
                   aria-label="Default select example"
                   onChange={this.change_correct_type}
+                  defaultValue= {this.state.filter_table.Correct}
                 >
                   <option value=""></option>
                   <option value="Correct">Correct</option>
@@ -449,6 +404,8 @@ export default class Exe_AllViolations extends Component {
                       <th style={{ fontFamily: "Verdana" }}>ID </th>
                       <th style={{ fontFamily: "Verdana" }}>Type </th>
                       <th style={{ fontFamily: "Verdana" }}>Street </th>
+                      <th style={{ fontFamily: "Verdana" }}>City </th>
+
                       <th style={{ fontFamily: "Verdana" }}>Accuracy</th>
                       <th style={{ fontFamily: "Verdana" }}>Risk</th>
                       <th style={{ fontFamily: "Verdana" }}>Date && Time</th>
